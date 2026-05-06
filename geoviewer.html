@@ -1100,6 +1100,16 @@ activeLayers.forEach(layer => {
       if (map.getLayer(layer.lineLayerId)) map.setPaintProperty(layer.lineLayerId, 'line-color', newColor);
       if (map.getLayer(layer.pointLayerId)) map.setPaintProperty(layer.pointLayerId, 'circle-color', newColor);
 
+      if (map.getLayer(layer.labelLayerId)) {
+        const wasVisible = layer.labelsVisible;
+        map.setLayoutProperty(layer.labelLayerId, 'visibility', 'none');
+        layer.labelFontColor = newColor;
+        map.setPaintProperty(layer.labelLayerId, 'text-color', newColor);
+        if (wasVisible) {
+          map.setLayoutProperty(layer.labelLayerId, 'visibility', 'visible');
+        }
+      }
+
       const item = fileList.querySelector(`[data-layer-id="${layerId}"]`);
       if (!item) return;
       const swatch = item.querySelector('.legend-swatch');
