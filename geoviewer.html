@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoViewer</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.21.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.21.0/mapbox-gl.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+      background: #f8fafc;
+    }
+
+    .app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 380px;
+      min-width: 260px;
+      max-width: 650px;
+      background: whitesmoke;
+      color: #111;
+      display: flex;
+      flex-direction: column;
+      padding: 8px;
+      box-sizing: border-box;
+      border-right: 1px solid rgba(0, 0, 0, 0.15);
+      box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .resizer {
+      width: 5px;
+      cursor: col-resize;
+      background: rgba(0, 0, 0, 0.15);
+      transition: background-color 0.2s ease;
+      flex-shrink: 0;
+      border-radius: 999px;
+    }
+
+    .resizer:hover,
+    .resizer.active {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar h1 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+      color: #111;
+    }
+
+    .sidebar .section {
+      background: #fff;
+      border-radius: 4px;
+      padding: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar button,
+    .sidebar input[type="file"],
+    .sidebar select {
+      width: 100%;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 0.84rem;
+      background: #fff;
+      color: #111;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+      transition: all 0.18s ease;
+    }
+
+.sidebar button {
+      cursor: pointer;
+      background: #111;
+      color: #fff;
+      border: 1px solid transparent;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .sidebar input[type="file"],
+    .sidebar select {
+      background: #fff;
+    }
+
+    .style-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .style-picker label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #111;
+    }
+
+.file-button {
+      background: #111;
+      border-color: transparent;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-family: monospace;
+    }
+
+    .file-button:hover {
+      background: #333;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .file-button:hover {
+      background: #000;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .file-button-top {
+      margin: 6px 0;
+    }
+
+    .sidebar button:not(.file-button):hover {
+      background: #f0f0f0;
+      border-color: rgba(0, 0, 0, 0.25);
+      color: #000;
+    }
+
+    .sidebar .hint {
+      font-size: small;
+      font-family: monospace;
+      line-height: 1.5;
+      color: #555;
+    }
+
+    .sidebar .file-list {
+      max-height: 260px;
+      overflow-y: auto;
+      margin-top: 6px;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 4px;
+      padding: 4px;
+    }
+
+    .sidebar .file-list:empty {
+      background: transparent;
+      border: none;
+      padding: 0;
+      max-height: none;
+      margin-top: 0;
+    }
+
+    .sidebar .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 6px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      transition: background 0.2s ease;
+      border-radius: 4px;
+    }
+
+    .sidebar .file-item:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    .sidebar .file-item:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar .file-item .legend-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sidebar .file-item .legend-info {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+      gap: 8px;
+    }
+
+    .sidebar .file-item .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar .file-item .legend-text {
+      font-size: 0.82rem;
+      color: #111;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: text;
+    }
+
+    .sidebar .file-item .legend-text:hover {
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 3px;
+    }
+
+    .sidebar .file-item .legend-text-input {
+      border: none;
+      background: transparent;
+      font-size: 0.82rem;
+      color: #111;
+      font-family: monospace;
+      outline: none;
+      width: 100%;
+      padding: 0;
+      cursor: text;
+    }
+
+    .sidebar .file-item .legend-count {
+      font-size: 0.76rem;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .sidebar .file-item button {
+      width: 28px;
+      min-width: 28px;
+      height: 28px;
+      padding: 0;
+      font-size: 0.78rem;
+      color: #555;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .sidebar .file-item button.remove-btn:hover {
+      background: rgba(0, 0, 0, 0.08);
+      border-color: rgba(0, 0, 0, 0.25);
+      color: #000;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar .file-item button.toggle-btn {
+      color: #333;
+    }
+
+    .sidebar .file-item button.toggle-btn:hover {
+      background: rgba(0, 0, 0, 0.08);
+      border-color: rgba(0, 0, 0, 0.25);
+      color: #000;
+    }
+
+    .sidebar .file-item button.toggle-btn.hidden {
+      background: rgba(0, 0, 0, 0.1);
+      color: #888;
+    }
+
+    .sidebar .file-item input.toggle-btn {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      cursor: pointer;
+      accent-color: #111;
+    }
+
+    .map-container {
+      flex: 1;
+      position: relative;
+    }
+
+    #map {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+.map-overlay {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #111;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      max-width: 320px;
+      z-index: 2;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .color-picker-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-picker-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .color-picker-content {
+      position: relative;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .color-picker-content h3 {
+      margin: 0 0 16px 0;
+      color: #111;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .color-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .color-option.selected {
+      border-color: #111;
+      transform: scale(1.1);
+    }
+
+    .feature-popup {
+      position: absolute;
+      z-index: 1001;
+      pointer-events: auto;
+    }
+
+    .feature-popup-content {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      padding: 12px;
+      min-width: 200px;
+      max-width: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      color: #111;
+      font-size: 0.82rem;
+      position: relative;
+    }
+
+    .feature-popup-content h4 {
+      margin: 0 0 12px 0;
+      font-size: 0.9rem;
+      color: #111;
+    }
+
+    .feature-properties {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .feature-property {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .feature-property:last-child {
+      border-bottom: none;
+    }
+
+    .feature-property strong {
+      color: #333;
+    }
+
+    .feature-popup-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .feature-popup-close:hover {
+      background: rgba(0, 0, 0, 0.06);
+      color: #000;
+    }
+
+    .color-picker-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-picker-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .color-picker-content {
+      position: relative;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .color-picker-content h3 {
+      margin: 0 0 16px 0;
+      color: #111;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .color-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+    }
+
+    .color-option.selected {
+      border-color: #111;
+      transform: scale(1.1);
+    }
+
+    .feature-popup {
+      position: absolute;
+      z-index: 1001;
+      pointer-events: auto;
+    }
+
+    .feature-popup-content {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      padding: 12px;
+      min-width: 300px;
+      max-width: 500px;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      color: #111;
+      font-size: 0.82rem;
+      position: relative;
+    }
+
+    .feature-popup-content h4 {
+      margin: 0 0 12px 0;
+      font-size: 0.9rem;
+      color: grey;
+    }
+
+    .feature-properties {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .feature-property {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    }
+
+    .feature-property:last-child {
+      border-bottom: none;
+    }
+
+    .feature-property strong {
+      color: grey;
+    }
+
+    .feature-popup-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: #64748b;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .feature-popup-close:hover {
+      background: rgba(0, 0, 0, 0.08);
+      color: #000;
+    }
+
+    .context-menu {
+      position: fixed;
+      z-index: 1002;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      padding: 4px 0;
+      min-width: 160px;
+      font-size: 0.82rem;
+      color: #111;
+    }
+
+    .context-menu-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .context-menu-item:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div>
+        <h1>GeoViewer</h1>
+        <p class="hint">Upload CSV or GeoJSON files and render the geometry on the Mapbox map. (CSV format: name,lon,lat. GeoJSON may contain Points, LineStrings, Polygons or FeatureCollections)</p>
+      </div>
+
+      <div class="section" style="margin-bottom: 8px;">
+        <label class="hint" style="display: block; margin-bottom: 6px;">Mapbox API Token</label>
+        <div style="display: flex; gap: 6px;">
+          <input id="tokenInput" type="text" placeholder="Paste your Mapbox API token" style="flex: 1; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; padding: 8px 12px; font-size: 0.78rem;" />
+          <button id="applyTokenBtn" type="button" class="file-button" style="font-size: 0.75rem; padding: 8px;">Apply</button>
+        </div>
+        <div id="tokenWarning" style="color: #ef4444; font-size: 0.75rem; margin-top: 4px; display: none;"></div>
+      </div>
+
+      <div class="style-picker">
+        <select id="mapStyleSelect">
+          <option value="mapbox://styles/mapbox/light-v11">Light v11</option>
+          <option value="mapbox://styles/mapbox/dark-v11">Dark v11</option>
+          <option value="mapbox://styles/mapbox/satellite-streets-v12">Satellite Streets v12</option>
+          <option value="mapbox://styles/mapbox/streets-v12">Streets v12</option>
+          <option value="mapbox://styles/mapbox/outdoors-v12">Outdoors v12</option>
+          <option value="mapbox://styles/mapbox/light-v10">Light v10</option>
+          <option value="mapbox://styles/mapbox/dark-v10">Dark v10</option>
+          <option value="mapbox://styles/mapbox/satellite-streets-v11">Satellite Streets v11</option>
+          <option value="mapbox://styles/mapbox/satellite-v9">Satellite v9</option>
+        </select>
+      </div>
+
+      <button id="fileButton" type="button" class="file-button file-button-top"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Choose Files</button>
+      <input id="fileInput" type="file" accept=".csv,.geojson,.json" multiple style="display: none;" />
+      <div class="file-list" id="fileList"></div>
+
+      <div class="section" style="margin-top: 8px;">
+        <label class="hint" style="display: block; margin-bottom: 6px;">Export</label>
+        <select id="exportLayerSelect" style="margin-bottom: 6px;">
+          <option value="all">All Layers</option>
+        </select>
+        <div style="display: flex; gap: 6px;">
+          <button id="exportGeoJSONBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">GeoJSON</button>
+          <button id="exportCSVBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">CSV</button>
+        </div>
+      </div>
+    </aside>
+    <div class="resizer" id="resizer" title="Drag to resize sidebar"></div>
+    <main class="map-container">
+      <div id="map"></div>
+      <div class="map-overlay" id="mapOverlay">Upload files to show shapes.</div>
+      <div class="map-overlay" id="mapCoords" style="top: 16px; right: 16px; left: auto; bottom: auto; font-family: monospace; font-size: 0.78rem;"></div>
+    </main>
+  </div>
+
+  <script>
+    const STORED_TOKEN_KEY = 'geoviewer_mapbox_token';
+    let currentToken = localStorage.getItem(STORED_TOKEN_KEY) || '';
+
+    function validateToken(token) {
+      return token && token.startsWith('pk.') && token.length > 50;
+    }
+
+    function applyToken(token) {
+      const warning = document.getElementById('tokenWarning');
+      token = token.trim();
+      if (!token) {
+        warning.textContent = 'Please enter a Mapbox API token.';
+        warning.style.display = 'block';
+        return;
+      }
+      if (!validateToken(token)) {
+        warning.textContent = 'Invalid token format. Token should start with "pk." and be at least 50 characters.';
+        warning.style.display = 'block';
+        return;
+      }
+      warning.style.display = 'none';
+      localStorage.setItem(STORED_TOKEN_KEY, token);
+      currentToken = token;
+      mapboxgl.accessToken = token;
+      window.location.href = window.location.href;
+    }
+
+    function initTokenInput() {
+      const tokenInput = document.getElementById('tokenInput');
+      const applyBtn = document.getElementById('applyTokenBtn');
+      if (!tokenInput || !applyBtn) return;
+      if (currentToken) {
+        tokenInput.value = currentToken;
+      }
+      applyBtn.addEventListener('click', () => {
+        const val = tokenInput.value;
+        applyToken(val);
+      });
+      tokenInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const val = tokenInput.value;
+          applyToken(val);
+        }
+      });
+    }
+
+    if (!currentToken) {
+      document.getElementById('mapOverlay').textContent = 'Please enter your Mapbox API token in the sidebar to enable the map.';
+    } else {
+      mapboxgl.accessToken = currentToken;
+    }
+
+    let map = null;
+    if (currentToken) {
+      try {
+        map = new mapboxgl.Map({
+          container: 'map',
+          style: 'mapbox://styles/mapbox/light-v11',
+          center: [-100, 40],
+          zoom: 3.5,
+        });
+      } catch (e) {
+        console.error('Map creation failed:', e);
+        map = null;
+      }
+    }
+
+    initTokenInput();
+  </script>
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const fileButton = document.getElementById('fileButton');
+    const mapStyleSelect = document.getElementById('mapStyleSelect');
+    const fileList = document.getElementById('fileList');
+    const mapOverlay = document.getElementById('mapOverlay');
+    const resizer = document.getElementById('resizer');
+    const sidebar = document.querySelector('.sidebar');
+
+    let currentLayerIndex = 0;
+    const colorPalette = [
+      '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+      '#0ea5e9', '#f472b6', '#14b8a6', '#fcd34d', '#a855f7',
+      '#6366f1', '#06b6d4', '#84cc16', '#f97316', '#ec4899',
+      '#8b5a2b', '#64748b', '#059669', '#dc2626', '#7c3aed',
+      '#0891b2', '#ea580c', '#be123c', '#4f46e5', '#0d9488'
+    ];
+    const activeLayers = [];
+    let totalFeatures = 0;
+
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', event => {
+      isResizing = true;
+      resizer.classList.add('active');
+      event.preventDefault();
+    });
+
+    document.addEventListener('mousemove', event => {
+      if (!isResizing) return;
+      const minWidth = 220;
+      const maxWidth = 720;
+      const rect = sidebar.getBoundingClientRect();
+      const newWidth = Math.min(maxWidth, Math.max(minWidth, event.clientX - rect.left));
+      sidebar.style.width = `${newWidth}px`;
+      map.resize();
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!isResizing) return;
+      isResizing = false;
+      resizer.classList.remove('active');
+    });
+
+    resizer.addEventListener('mouseleave', () => {
+      if (!isResizing) return;
+      resizer.classList.remove('active');
+    });
+
+    function addLayerFromStored(layer) {
+      if (!map.getSource(layer.sourceId)) {
+        map.addSource(layer.sourceId, { type: 'geojson', data: layer.geojson });
+      }
+
+      const geometryTypes = new Set();
+      const features = layer.geojson.type === 'FeatureCollection' ? layer.geojson.features : [layer.geojson];
+      features.forEach(feature => {
+        if (!feature || !feature.geometry) return;
+        geometryTypes.add(feature.geometry.type);
+      });
+
+      if ([...geometryTypes].some(type => ['Polygon', 'MultiPolygon'].includes(type))) {
+        if (!map.getLayer(layer.fillLayerId)) {
+          map.addLayer({
+            id: layer.fillLayerId,
+            type: 'fill',
+            source: layer.sourceId,
+            paint: { 'fill-color': layer.color, 'fill-opacity': 0.2 },
+            layout: { visibility: layer.visible !== false ? 'visible' : 'none' },
+          });
+          map.on('click', layer.fillLayerId, (e) => {
+            const feats = map.queryRenderedFeatures(e.point, { layers: [layer.fillLayerId] });
+            if (feats.length > 0) showFeaturePopup(feats[0], e.lngLat, layer.displayName);
+          });
+          map.on('mouseenter', layer.fillLayerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+          map.on('mouseleave', layer.fillLayerId, () => { map.getCanvas().style.cursor = ''; });
+        }
+      }
+
+      if ([...geometryTypes].some(type => ['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'].includes(type))) {
+        if (!map.getLayer(layer.lineLayerId)) {
+          map.addLayer({
+            id: layer.lineLayerId,
+            type: 'line',
+            source: layer.sourceId,
+            paint: { 'line-color': layer.color, 'line-width': 3 },
+            layout: { visibility: layer.visible !== false ? 'visible' : 'none' },
+          });
+          map.on('click', layer.lineLayerId, (e) => {
+            const feats = map.queryRenderedFeatures(e.point, { layers: [layer.lineLayerId] });
+            if (feats.length > 0) showFeaturePopup(feats[0], e.lngLat, layer.displayName);
+          });
+          map.on('mouseenter', layer.lineLayerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+          map.on('mouseleave', layer.lineLayerId, () => { map.getCanvas().style.cursor = ''; });
+        }
+      }
+
+      if ([...geometryTypes].some(type => ['Point', 'MultiPoint'].includes(type))) {
+        if (!map.getLayer(layer.pointLayerId)) {
+          map.addLayer({
+            id: layer.pointLayerId,
+            type: 'circle',
+            source: layer.sourceId,
+            paint: { 'circle-radius': 6, 'circle-color': layer.color, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 },
+            layout: { visibility: layer.visible !== false ? 'visible' : 'none' },
+          });
+          map.on('click', layer.pointLayerId, (e) => {
+            const feats = map.queryRenderedFeatures(e.point, { layers: [layer.pointLayerId] });
+            if (feats.length > 0) showFeaturePopup(feats[0], e.lngLat, layer.displayName);
+          });
+          map.on('mouseenter', layer.pointLayerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+          map.on('mouseleave', layer.pointLayerId, () => { map.getCanvas().style.cursor = ''; });
+        }
+      }
+
+      if ([...geometryTypes].some(type => ['Point', 'MultiPoint', 'Polygon', 'MultiPolygon', 'LineString', 'MultiLineString'].includes(type))) {
+        const labelVisibility = layer.labelsVisible ? 'visible' : 'none';
+        const textField = layer.labelProperty ? ['get', layer.labelProperty] : ['get', 'name'];
+        if (!map.getLayer(layer.labelLayerId)) {
+          map.addLayer({
+            id: layer.labelLayerId,
+            type: 'symbol',
+            source: layer.sourceId,
+            layout: {
+              'text-field': textField,
+              'text-size': layer.labelFontSize || 12,
+              'symbol-placement': 'point',
+              'text-anchor': 'bottom',
+              'text-offset': [0, 1.5],
+              'visibility': labelVisibility
+            },
+            paint: {
+              'text-color': layer.labelFontColor || '#111111',
+              'text-halo-color': layer.labelHaloColor || '#ffffff',
+              'text-halo-width': layer.labelHaloWidth || 2
+            }
+          });
+        }
+      }
+    }
+
+    function restoreLayers() {
+      const userLayerIds = activeLayers.flatMap(l => [l.fillLayerId, l.lineLayerId, l.pointLayerId, l.labelLayerId].filter(Boolean));
+      userLayerIds.forEach(id => {
+        if (map.getLayer(id)) map.removeLayer(id);
+      });
+activeLayers.forEach(layer => {
+        addLayerFromStored(layer);
+      });
+      updateAllLabelButtons();
+      updateAllVisibilityButtons();
+    }
+
+    function updateAllVisibilityButtons() {
+      activeLayers.forEach(layer => {
+        const item = fileList.querySelector(`[data-layer-id="${layer.id}"]`);
+        if (item) {
+          const toggleBtn = item.querySelector('.toggle-btn');
+          if (toggleBtn) {
+            toggleBtn.checked = layer.visible !== false;
+          }
+        }
+      });
+    }
+
+    function updateAllLabelButtons() {
+      activeLayers.forEach(layer => {
+        const item = fileList.querySelector(`[data-layer-id="${layer.id}"]`);
+        if (item) {
+          const labelBtn = item.querySelector('.label-btn');
+          if (labelBtn) {
+            labelBtn.style.background = layer.labelsVisible ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.1)';
+            labelBtn.style.color = layer.labelsVisible ? '#fff' : '#888';
+          }
+        }
+      });
+    }
+
+    mapStyleSelect.addEventListener('change', event => {
+      const userLayerIds = activeLayers.flatMap(l => [l.fillLayerId, l.lineLayerId, l.pointLayerId, l.labelLayerId].filter(Boolean));
+      userLayerIds.forEach(id => {
+        if (map.getLayer(id)) map.removeLayer(id);
+      });
+      map.setStyle(event.target.value, { diff: false });
+      map.once('style.load', () => {
+        activeLayers.forEach(layer => {
+          if (map.getLayer(layer.fillLayerId) || map.getLayer(layer.lineLayerId) || map.getLayer(layer.pointLayerId)) {
+            return;
+          }
+          addLayerFromStored(layer);
+        });
+        updateAllLabelButtons();
+        updateAllVisibilityButtons();
+      });
+    });
+
+    function updateLayerColor(layerId, newColor) {
+      const layer = activeLayers.find(l => l.id === layerId);
+      if (!layer) return;
+      layer.color = newColor;
+
+      if (map.getLayer(layer.fillLayerId)) map.setPaintProperty(layer.fillLayerId, 'fill-color', newColor);
+      if (map.getLayer(layer.lineLayerId)) map.setPaintProperty(layer.lineLayerId, 'line-color', newColor);
+      if (map.getLayer(layer.pointLayerId)) map.setPaintProperty(layer.pointLayerId, 'circle-color', newColor);
+
+      const item = fileList.querySelector(`[data-layer-id="${layerId}"]`);
+      if (!item) return;
+      const swatch = item.querySelector('.legend-swatch');
+      if (swatch) swatch.style.backgroundColor = newColor;
+    }
+
+    function showColorPicker(layerId, currentColor) {
+      const existingPicker = document.querySelector('.color-picker-modal');
+      if (existingPicker) existingPicker.remove();
+
+      const modal = document.createElement('div');
+      modal.className = 'color-picker-modal';
+
+      const overlay = document.createElement('div');
+      overlay.className = 'color-picker-overlay';
+      overlay.addEventListener('click', () => modal.remove());
+
+      const content = document.createElement('div');
+      content.className = 'color-picker-content';
+
+      const title = document.createElement('h3');
+      title.textContent = 'Choose Layer Color';
+      content.appendChild(title);
+
+      const grid = document.createElement('div');
+      grid.className = 'color-picker-grid';
+
+      colorPalette.forEach(color => {
+        const colorBtn = document.createElement('button');
+        colorBtn.className = `color-option ${color === currentColor ? 'selected' : ''}`;
+        colorBtn.style.backgroundColor = color;
+        colorBtn.addEventListener('click', () => {
+          updateLayerColor(layerId, color);
+          modal.remove();
+        });
+        grid.appendChild(colorBtn);
+      });
+
+      content.appendChild(grid);
+      modal.appendChild(overlay);
+      modal.appendChild(content);
+      document.body.appendChild(modal);
+    }
+
+    function startRename(label, layerId) {
+      const layer = activeLayers.find(l => l.id === layerId);
+      if (!layer) return;
+
+      const currentName = layer.displayName;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'legend-text-input';
+      input.value = currentName;
+      let renamed = false;
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (!renamed) {
+            renamed = true;
+            finishRename(input, layerId);
+          }
+        } else if (e.key === 'Escape') {
+          input.value = currentName;
+          input.blur();
+        }
+      });
+
+      input.addEventListener('blur', () => {
+        if (!renamed) {
+          renamed = true;
+          finishRename(input, layerId);
+        }
+      });
+
+      label.replaceWith(input);
+      input.focus();
+      input.select();
+    }
+
+    function finishRename(input, layerId) {
+      if (!input.parentNode) return;
+      const newName = input.value.trim() || `Layer ${layerId}`;
+      const layer = activeLayers.find(l => l.id === layerId);
+      if (layer) layer.displayName = newName;
+
+      const span = document.createElement('span');
+      span.className = 'legend-text';
+      span.textContent = newName;
+      span.addEventListener('click', () => startRename(span, layerId));
+      input.replaceWith(span);
+    }
+
+    function addFileItem(name, count, id, color) {
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.dataset.layerId = id;
+
+      const legendInfo = document.createElement('div');
+      legendInfo.className = 'legend-info';
+
+      const swatch = document.createElement('span');
+      swatch.className = 'legend-swatch';
+      swatch.style.backgroundColor = color;
+      swatch.style.cursor = 'pointer';
+      swatch.title = 'Click to change color';
+      swatch.addEventListener('click', () => showColorPicker(id, color));
+
+      const label = document.createElement('span');
+      label.className = 'legend-text';
+      label.textContent = name;
+      label.addEventListener('click', () => startRename(label, id));
+
+      const countLabel = document.createElement('span');
+      countLabel.className = 'legend-count';
+      countLabel.textContent = `(${count})`;
+
+      legendInfo.appendChild(swatch);
+      legendInfo.appendChild(label);
+
+      const toggleBtn = document.createElement('input');
+      toggleBtn.type = 'checkbox';
+      toggleBtn.className = 'toggle-btn';
+      toggleBtn.checked = true;
+      toggleBtn.title = 'Toggle layer visibility';
+      toggleBtn.addEventListener('change', () => toggleLayerVisibility(id, toggleBtn));
+
+      const labelBtn = document.createElement('button');
+      labelBtn.className = 'remove-btn label-btn';
+      labelBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7V4h16v3M9 20h6M12 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      labelBtn.type = 'button';
+      labelBtn.title = 'Toggle labels';
+      labelBtn.style.background = 'rgba(0,0,0,0.1)';
+      labelBtn.style.color = '#888';
+      labelBtn.addEventListener('click', () => {
+        toggleLayerLabels(id, labelBtn);
+      });
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      removeBtn.type = 'button';
+      removeBtn.title = 'Remove layer';
+      removeBtn.addEventListener('click', () => removeLayer(id));
+
+      const rightGroup = document.createElement('div');
+      rightGroup.style.display = 'flex';
+      rightGroup.style.alignItems = 'center';
+      rightGroup.style.gap = '8px';
+      rightGroup.appendChild(countLabel);
+      rightGroup.appendChild(toggleBtn);
+      rightGroup.appendChild(labelBtn);
+      rightGroup.appendChild(removeBtn);
+
+      const topRow = document.createElement('div');
+      topRow.className = 'legend-top';
+      topRow.appendChild(legendInfo);
+      topRow.appendChild(rightGroup);
+
+      item.appendChild(topRow);
+      fileList.appendChild(item);
+    }
+
+    function toggleLayerVisibility(layerId, checkbox) {
+      const layer = activeLayers.find(l => l.id === layerId);
+      if (!layer) return;
+
+      const visibility = checkbox.checked ? 'visible' : 'none';
+      layer.visible = checkbox.checked;
+
+      if (map.getLayer(layer.fillLayerId)) map.setLayoutProperty(layer.fillLayerId, 'visibility', visibility);
+      if (map.getLayer(layer.lineLayerId)) map.setLayoutProperty(layer.lineLayerId, 'visibility', visibility);
+      if (map.getLayer(layer.pointLayerId)) map.setLayoutProperty(layer.pointLayerId, 'visibility', visibility);
+      if (map.getLayer(layer.labelLayerId)) {
+        map.setLayoutProperty(layer.labelLayerId, 'visibility', layer.labelsVisible && checkbox.checked ? 'visible' : 'none');
+      }
+
+      checkbox.title = checkbox.checked ? 'Toggle layer visibility' : 'Layer hidden - click to show';
+    }
+
+    function getLayerProperties(layer) {
+      const props = new Set();
+      const features = layer.geojson.type === 'FeatureCollection' ? layer.geojson.features : [layer.geojson];
+      features.forEach(f => {
+        if (f && f.properties) {
+          Object.keys(f.properties).forEach(key => props.add(key));
+        }
+      });
+      return Array.from(props).sort();
+    }
+
+    function showLabelConfigModal(layer, btn) {
+      const existingModal = document.querySelector('.label-config-modal');
+      if (existingModal) existingModal.remove();
+
+      const overlay = document.createElement('div');
+      overlay.className = 'label-config-overlay';
+      overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 9998; display: flex; align-items: center; justify-content: center;';
+
+      const modal = document.createElement('div');
+      modal.className = 'label-config-modal';
+      modal.style.cssText = 'background: #fff; border-radius: 8px; padding: 20px; min-width: 320px; max-width: 400px; max-height: 90vh; box-shadow: 0 4px 20px rgba(0,0,0,0.2); font-family: sans-serif; overflow-y: auto;';
+
+      const header = document.createElement('div');
+      header.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;';
+      const title = document.createElement('span');
+      title.textContent = 'Configure Label';
+      title.style.cssText = 'font-size: 1rem; font-weight: bold; color: #333;';
+      const closeBtn = document.createElement('button');
+      closeBtn.innerHTML = '&times;';
+      closeBtn.style.cssText = 'background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; padding: 0; line-height: 1;';
+      closeBtn.addEventListener('click', () => {
+        overlay.remove();
+      });
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+      modal.appendChild(header);
+
+      const form = document.createElement('div');
+      form.style.cssText = 'display: flex; flex-direction: column; gap: 12px; max-height: 80vh; overflow-y: auto;';
+
+      const propRow = document.createElement('div');
+      propRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+      const propLabel = document.createElement('label');
+      propLabel.textContent = 'Property:';
+      propLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
+      const propSelect = document.createElement('select');
+      propSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; font-size: 0.85rem; min-height: 30px;';
+      const properties = getLayerProperties(layer);
+      const noneOpt = document.createElement('option');
+      noneOpt.value = '';
+      noneOpt.textContent = 'None';
+      propSelect.appendChild(noneOpt);
+      properties.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        if (layer.labelProperty === p) opt.selected = true;
+        propSelect.appendChild(opt);
+      });
+      propRow.appendChild(propLabel);
+      propRow.appendChild(propSelect);
+      form.appendChild(propRow);
+
+      const sizeRow = document.createElement('div');
+      sizeRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+      const sizeLabel = document.createElement('label');
+      sizeLabel.textContent = 'Size:';
+      sizeLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
+      const sizeSelect = document.createElement('select');
+      sizeSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; font-size: 0.85rem;';
+      const sizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 42, 48, 56, 64];
+      sizes.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s + 'px';
+        if ((layer.labelFontSize || 12) === s) opt.selected = true;
+        sizeSelect.appendChild(opt);
+      });
+      sizeRow.appendChild(sizeLabel);
+      sizeRow.appendChild(sizeSelect);
+      form.appendChild(sizeRow);
+
+      const colorRow = document.createElement('div');
+      colorRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+      const colorLabel = document.createElement('label');
+      colorLabel.textContent = 'Color:';
+      colorLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
+      const colorInput = document.createElement('input');
+      colorInput.type = 'color';
+      colorInput.value = layer.labelFontColor || '#111111';
+      colorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; cursor: pointer;';
+      colorRow.appendChild(colorLabel);
+      colorRow.appendChild(colorInput);
+      form.appendChild(colorRow);
+
+      const haloColorRow = document.createElement('div');
+      haloColorRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+      const haloColorLabel = document.createElement('label');
+      haloColorLabel.textContent = 'Halo Color:';
+      haloColorLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
+      const haloColorInput = document.createElement('input');
+      haloColorInput.type = 'color';
+      haloColorInput.value = layer.labelHaloColor || '#ffffff';
+      haloColorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; cursor: pointer;';
+      haloColorRow.appendChild(haloColorLabel);
+      haloColorRow.appendChild(haloColorInput);
+      form.appendChild(haloColorRow);
+
+      const haloWidthRow = document.createElement('div');
+      haloWidthRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+      const haloWidthLabel = document.createElement('label');
+      haloWidthLabel.textContent = 'Halo Width:';
+      haloWidthLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
+      const haloWidthInput = document.createElement('input');
+      haloWidthInput.type = 'range';
+      haloWidthInput.min = '0';
+      haloWidthInput.max = '5';
+      haloWidthInput.step = '0.5';
+      haloWidthInput.value = layer.labelHaloWidth || 2;
+      haloWidthInput.style.cssText = 'flex: 1; cursor: pointer;';
+      const haloWidthValue = document.createElement('span');
+      haloWidthValue.textContent = haloWidthInput.value + 'px';
+      haloWidthValue.style.cssText = 'font-size: 0.8rem; color: #666; min-width: 30px;';
+      haloWidthInput.addEventListener('input', () => {
+        haloWidthValue.textContent = haloWidthInput.value + 'px';
+      });
+      haloWidthRow.appendChild(haloWidthLabel);
+      haloWidthRow.appendChild(haloWidthInput);
+      haloWidthRow.appendChild(haloWidthValue);
+      form.appendChild(haloWidthRow);
+
+      modal.appendChild(form);
+
+      const btnRow = document.createElement('div');
+      btnRow.style.cssText = 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;';
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = 'Cancel';
+      cancelBtn.style.cssText = 'padding: 8px 16px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; background: #f5f5f5; cursor: pointer; font-size: 0.85rem;';
+      cancelBtn.addEventListener('click', () => overlay.remove());
+      const applyBtn = document.createElement('button');
+      applyBtn.textContent = 'Apply';
+      applyBtn.style.cssText = 'padding: 8px 16px; border: none; border-radius: 4px; background: #3b82f6; color: #fff; cursor: pointer; font-size: 0.85rem;';
+      applyBtn.addEventListener('click', () => {
+        const selectedProp = propSelect.value;
+        layer.labelProperty = selectedProp ? selectedProp : null;
+        layer.labelFontSize = parseInt(sizeSelect.value, 10);
+        layer.labelFontColor = colorInput.value;
+        layer.labelHaloColor = haloColorInput.value;
+        layer.labelHaloWidth = parseFloat(haloWidthInput.value);
+
+        if (!map.getLayer(layer.labelLayerId)) {
+          alert('Label layer not found. This layer may not support labels.');
+          overlay.remove();
+          return;
+        }
+
+        const textField = layer.labelProperty ? ['get', layer.labelProperty] : ['get', 'name'];
+        map.setLayoutProperty(layer.labelLayerId, 'text-field', textField);
+        map.setLayoutProperty(layer.labelLayerId, 'text-size', layer.labelFontSize);
+        map.setPaintProperty(layer.labelLayerId, 'text-color', layer.labelFontColor);
+        map.setPaintProperty(layer.labelLayerId, 'text-halo-color', layer.labelHaloColor);
+        map.setPaintProperty(layer.labelLayerId, 'text-halo-width', layer.labelHaloWidth);
+
+        map.setLayoutProperty(layer.labelLayerId, 'visibility', 'none');
+        setTimeout(() => {
+          map.setLayoutProperty(layer.labelLayerId, 'visibility', layer.labelProperty ? 'visible' : 'none');
+        }, 10);
+
+        if (layer.labelProperty) {
+          layer.labelsVisible = true;
+          map.setLayoutProperty(layer.labelLayerId, 'visibility', 'visible');
+          if (btn) {
+            btn.style.background = 'rgba(0,0,0,0.25)';
+            btn.style.color = '#fff';
+          }
+        } else {
+          layer.labelsVisible = false;
+          map.setLayoutProperty(layer.labelLayerId, 'visibility', 'none');
+          if (btn) {
+            btn.style.background = 'rgba(0,0,0,0.1)';
+            btn.style.color = '#888';
+          }
+        }
+        overlay.remove();
+      });
+      btnRow.appendChild(cancelBtn);
+      btnRow.appendChild(applyBtn);
+      modal.appendChild(btnRow);
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.remove();
+        }
+      });
+    }
+
+    function toggleLayerLabels(layerId, btn) {
+      const layer = activeLayers.find(l => l.id === layerId);
+      if (!layer) {
+        alert('Layer not found: ' + layerId);
+        return;
+      }
+      if (!map) {
+        alert('Map not initialized. Please enter a valid Mapbox token.');
+        return;
+      }
+      showLabelConfigModal(layer, btn);
+    }
+
+    function removeLayer(layerId) {
+      const layer = activeLayers.find(l => l.id === layerId);
+      if (!layer) return;
+
+      if (map.getLayer(layer.fillLayerId)) map.removeLayer(layer.fillLayerId);
+      if (map.getLayer(layer.lineLayerId)) map.removeLayer(layer.lineLayerId);
+      if (map.getLayer(layer.pointLayerId)) map.removeLayer(layer.pointLayerId);
+      if (map.getLayer(layer.labelLayerId)) map.removeLayer(layer.labelLayerId);
+      if (map.getSource(layer.sourceId)) map.removeSource(layer.sourceId);
+
+      totalFeatures -= layer.featureCount;
+      activeLayers.splice(activeLayers.indexOf(layer), 1);
+      const fileItem = fileList.querySelector(`[data-layer-id="${layerId}"]`);
+      if (fileItem) fileList.removeChild(fileItem);
+      updateOverlay();
+      updateExportLayerSelect();
+    }
+
+    function updateOverlay() {
+      if (activeLayers.length === 0) {
+        mapOverlay.textContent = 'Upload files to show shapes.';
+      } else {
+        mapOverlay.textContent = `Showing ${totalFeatures} feature${totalFeatures === 1 ? '' : 's'} across ${activeLayers.length} layer${activeLayers.length === 1 ? '' : 's'}.`;
+      }
+      updateExportLayerSelect();
+    }
+
+    function updateExportLayerSelect() {
+      const select = document.getElementById('exportLayerSelect');
+      select.innerHTML = '<option value="all">All Layers</option>';
+      activeLayers.forEach(layer => {
+        const opt = document.createElement('option');
+        opt.value = layer.id;
+        opt.textContent = layer.displayName;
+        select.appendChild(opt);
+      });
+    }
+
+function showFeaturePopup(feature, lngLat, layerDisplayName) {
+      const existingPopup = document.querySelector('.feature-popup');
+      if (existingPopup) existingPopup.remove();
+
+      const popup = document.createElement('div');
+      popup.className = 'feature-popup';
+
+      const content = document.createElement('div');
+      content.className = 'feature-popup-content';
+
+      const title = document.createElement('h4');
+      title.textContent = layerDisplayName || 'Feature Information';
+      content.appendChild(title);
+
+      const properties = feature.properties || {};
+      const propList = document.createElement('div');
+      propList.className = 'feature-properties';
+
+      // Add latitude and longitude separately
+      const latDiv = document.createElement('div');
+      latDiv.className = 'feature-property';
+      latDiv.innerHTML = `Latitude: <strong>${lngLat.lat.toFixed(6)}</strong>`;
+      propList.appendChild(latDiv);
+
+      const lonDiv = document.createElement('div');
+      lonDiv.className = 'feature-property';
+      lonDiv.innerHTML = `Longitude: <strong>${lngLat.lng.toFixed(6)}</strong>`;
+      propList.appendChild(lonDiv);
+
+      // Add other properties
+      Object.keys(properties).forEach(key => {
+        if (properties[key] !== null && properties[key] !== undefined) {
+          const propDiv = document.createElement('div');
+          propDiv.className = 'feature-property';
+          propDiv.innerHTML = `${key}: <strong>${properties[key]}</strong>`;
+          propList.appendChild(propDiv);
+        }
+      });
+
+      content.appendChild(propList);
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'feature-popup-close';
+      closeBtn.textContent = '×';
+      closeBtn.addEventListener('click', () => popup.remove());
+      content.appendChild(closeBtn);
+
+      popup.appendChild(content);
+      document.body.appendChild(popup);
+
+      // Position the popup near the click
+      const mapRect = map.getCanvas().getBoundingClientRect();
+      const popupRect = content.getBoundingClientRect();
+      const point = map.project(lngLat);
+
+      let left = mapRect.left + point.x - popupRect.width / 2;
+      let top = mapRect.top + point.y - popupRect.height - 10;
+
+      // Keep popup within viewport
+      if (left < 10) left = 10;
+      if (left + popupRect.width > window.innerWidth - 10) left = window.innerWidth - popupRect.width - 10;
+      if (top < 10) top = mapRect.top + point.y + 10;
+
+      popup.style.left = `${left}px`;
+      popup.style.top = `${top}px`;
+    }
+
+    function removePopup() {
+      const existingPopup = document.querySelector('.feature-popup');
+      if (existingPopup) existingPopup.remove();
+    }
+
+    function removeContextMenu() {
+      const existing = document.querySelector('.context-menu');
+      if (existing) existing.remove();
+    }
+
+    function showContextMenu(lng, lat, x, y) {
+      removeContextMenu();
+      const menu = document.createElement('div');
+      menu.className = 'context-menu';
+      menu.style.left = `${x}px`;
+      menu.style.top = `${y}px`;
+
+      const item = document.createElement('div');
+      item.className = 'context-menu-item';
+      item.textContent = 'Copy LON,LAT Coordinates';
+      item.addEventListener('click', () => {
+        navigator.clipboard.writeText(`${lng.toFixed(6)},${lat.toFixed(6)}`);
+        removeContextMenu();
+      });
+      menu.appendChild(item);
+
+      document.body.appendChild(menu);
+    }
+
+    document.addEventListener('click', removeContextMenu);
+
+    function parseCSV(text) {
+      const rows = text.trim().split(/\r?\n/).filter(Boolean);
+      if (rows.length === 0) return [];
+
+      const header = parseCSVRow(rows[0]).map(h => h.trim().toLowerCase());
+      const lonIndex = header.indexOf('lon');
+      const latIndex = header.indexOf('lat');
+      const nameIndex = header.indexOf('name');
+      if (lonIndex === -1 || latIndex === -1) {
+        throw new Error('CSV missing lon/lat columns.');
+      }
+
+      return rows.slice(1).map((line, idx) => {
+        const cols = parseCSVRow(line);
+        const lon = parseFloat(cols[lonIndex]);
+        const lat = parseFloat(cols[latIndex]);
+        if (Number.isNaN(lon) || Number.isNaN(lat)) {
+          return null;
+        }
+        const properties = { name: nameIndex >= 0 ? cols[nameIndex] : `Point ${idx + 1}` };
+        header.forEach((key, i) => {
+          if (key !== 'lon' && key !== 'lat' && cols[i] !== undefined) {
+            properties[key] = cols[i];
+          }
+        });
+        return {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [lon, lat] },
+          properties,
+        };
+      }).filter(Boolean);
+    }
+
+    function parseCSVRow(row) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < row.length; i++) {
+        const char = row[i];
+        if (char === '"') {
+          if (inQuotes && row[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current.trim());
+      return result;
+    }
+
+    function addGeoJSONLayer(geojson, displayName) {
+      const id = `layer-${currentLayerIndex++}`;
+      const sourceId = `${id}-source`;
+      const fillLayerId = `${id}-fill`;
+      const lineLayerId = `${id}-line`;
+      const pointLayerId = `${id}-point`;
+      const labelLayerId = `${id}-label`;
+      const layerColor = colorPalette[(currentLayerIndex - 1) % colorPalette.length];
+
+      map.addSource(sourceId, { type: 'geojson', data: geojson });
+
+      const fillLayers = [];
+      const lineLayers = [];
+      const pointLayers = [];
+
+      const geometryTypes = new Set();
+      const features = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
+      features.forEach(feature => {
+        if (!feature || !feature.geometry) return;
+        geometryTypes.add(feature.geometry.type);
+      });
+
+      if ([...geometryTypes].some(type => ['Polygon', 'MultiPolygon'].includes(type))) {
+        fillLayers.push({ id: fillLayerId, paint: { 'fill-color': layerColor, 'fill-opacity': 0.2 } });
+      }
+
+      if ([...geometryTypes].some(type => ['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'].includes(type))) {
+        lineLayers.push({ id: lineLayerId, paint: { 'line-color': layerColor, 'line-width': 3 } });
+      }
+
+      if ([...geometryTypes].some(type => ['Point', 'MultiPoint'].includes(type))) {
+        pointLayers.push({ id: pointLayerId, paint: { 'circle-radius': 6, 'circle-color': layerColor, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 } });
+      }
+
+      if (fillLayers.length) {
+        map.addLayer({
+          id: fillLayerId,
+          type: 'fill',
+          source: sourceId,
+          paint: fillLayers[0].paint,
+        });
+
+        map.on('click', fillLayerId, (e) => {
+          const features = map.queryRenderedFeatures(e.point, { layers: [fillLayerId] });
+          if (features.length > 0) {
+            const layer = activeLayers.find(l => l.sourceId === sourceId);
+            showFeaturePopup(features[0], e.lngLat, layer ? layer.displayName : displayName);
+          }
+        });
+
+        map.on('mouseenter', fillLayerId, () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', fillLayerId, () => {
+          map.getCanvas().style.cursor = '';
+        });
+      }
+      if (lineLayers.length) {
+        map.addLayer({
+          id: lineLayerId,
+          type: 'line',
+          source: sourceId,
+          paint: lineLayers[0].paint,
+        });
+
+        map.on('click', lineLayerId, (e) => {
+          const features = map.queryRenderedFeatures(e.point, { layers: [lineLayerId] });
+          if (features.length > 0) {
+            const layer = activeLayers.find(l => l.sourceId === sourceId);
+            showFeaturePopup(features[0], e.lngLat, layer ? layer.displayName : displayName);
+          }
+        });
+
+        map.on('mouseenter', lineLayerId, () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', lineLayerId, () => {
+          map.getCanvas().style.cursor = '';
+        });
+      }
+      if (pointLayers.length) {
+        map.addLayer({
+          id: pointLayerId,
+          type: 'circle',
+          source: sourceId,
+          paint: pointLayers[0].paint,
+        });
+
+        // Add click handler for point features
+        map.on('click', pointLayerId, (e) => {
+          const features = map.queryRenderedFeatures(e.point, { layers: [pointLayerId] });
+          if (features.length > 0) {
+            const layer = activeLayers.find(l => l.sourceId === sourceId);
+            showFeaturePopup(features[0], e.lngLat, layer ? layer.displayName : displayName);
+          }
+        });
+
+        // Change cursor to pointer when hovering over points
+        map.on('mouseenter', pointLayerId, () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', pointLayerId, () => {
+          map.getCanvas().style.cursor = '';
+        });
+      }
+
+      const defaultLabelFontFamily = 'sans-serif';
+      const defaultLabelFontSize = 12;
+      const defaultLabelFontColor = '#111111';
+      const defaultLabelHaloColor = '#ffffff';
+      const defaultLabelHaloWidth = 2;
+
+      if ([...geometryTypes].some(type => ['Point', 'MultiPoint', 'Polygon', 'MultiPolygon', 'LineString', 'MultiLineString'].includes(type))) {
+        map.addLayer({
+          id: labelLayerId,
+          type: 'symbol',
+          source: sourceId,
+          layout: {
+            'text-field': ['get', 'name'],
+            'text-size': defaultLabelFontSize,
+            'symbol-placement': 'point',
+            'text-anchor': 'bottom',
+            'text-offset': [0, 1.5],
+            'visibility': 'none'
+          },
+          paint: {
+            'text-color': defaultLabelFontColor,
+            'text-halo-color': defaultLabelHaloColor,
+            'text-halo-width': defaultLabelHaloWidth
+          }
+        });
+      }
+
+      const featureCount = features.length;
+      activeLayers.push({ id, sourceId, fillLayerId, lineLayerId, pointLayerId, labelLayerId, featureCount, color: layerColor, geojson, displayName, labelsVisible: false, labelProperty: null, labelFontFamily: defaultLabelFontFamily, labelFontSize: defaultLabelFontSize, labelFontColor: defaultLabelFontColor, labelHaloColor: defaultLabelHaloColor, labelHaloWidth: defaultLabelHaloWidth, visible: true });
+      addFileItem(displayName, featureCount, id, layerColor);
+      totalFeatures += featureCount;
+      updateOverlay();
+      updateExportLayerSelect();
+
+      if (featureCount > 0) {
+        const bounds = new mapboxgl.LngLatBounds();
+        features.forEach(feature => {
+          if (!feature.geometry) return;
+          const coords = feature.geometry.type === 'Point' ? [feature.geometry.coordinates] : getAllCoordinates(feature.geometry);
+          coords.forEach(coord => bounds.extend(coord));
+        });
+        if (bounds.isEmpty()) return;
+        map.fitBounds(bounds, { padding: 40, duration: 800, maxZoom: 14 });
+      }
+    }
+
+    function getAllCoordinates(geometry) {
+      const coords = [];
+      const collect = array => array.forEach(item => Array.isArray(item[0]) ? collect(item) : coords.push(item));
+      if (geometry.type === 'Point') return [geometry.coordinates];
+      if (geometry.type === 'MultiPoint' || geometry.type === 'LineString') return geometry.coordinates;
+      collect(geometry.coordinates);
+      return coords;
+    }
+
+    function parseFile(file) {
+      return new Promise((resolve, reject) => {
+        const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
+        if (file.size > MAX_FILE_SIZE) {
+          reject(new Error('File too large (max 2GB). Try simplifying or splitting the file.'));
+          return;
+        }
+        if (file.size === 0) {
+          reject(new Error('File is empty.'));
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          const text = reader.result;
+          if (!text || text.length === 0) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            reject(new Error(`File appears empty after reading (file size: ${sizeMB}MB). Likely out of memory - try a smaller file.`));
+            return;
+          }
+
+          const ext = file.name.split('.').pop().toLowerCase();
+          if (ext === 'csv') {
+            try {
+              const features = parseCSV(text);
+              resolve({ type: 'FeatureCollection', features });
+            } catch (err) {
+              if (err.message.includes('lon/lat')) {
+                reject(err);
+              } else {
+                reject(new Error('CSV parsing error: ' + err.message));
+              }
+            }
+          } else {
+            try {
+              const geojson = JSON.parse(text);
+              resolve(geojson);
+            } catch (err) {
+              if (err.message.includes('out of memory') || err.message.includes('allocation failure')) {
+                reject(new Error('File too large to process. Try a smaller or simplified file.'));
+              } else {
+                reject(new Error('Invalid GeoJSON: ' + err.message));
+              }
+            }
+          }
+        };
+        reader.onerror = () => {
+          if (reader.error && reader.error.name === 'AbortError') {
+            reject(new Error('File reading was cancelled. Please try again.'));
+          } else {
+            reject(new Error('Unable to read file. The file may be corrupted or too large.'));
+          }
+        };
+        reader.onabort = () => reject(new Error('File reading was cancelled.'));
+        reader.readAsText(file);
+      });
+    }
+
+    function downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function getSelectedLayerId() {
+      return document.getElementById('exportLayerSelect').value;
+    }
+
+    function exportToGeoJSON() {
+      if (activeLayers.length === 0) {
+        alert('No layers to export.');
+        return;
+      }
+      const selectedId = getSelectedLayerId();
+      let features;
+      if (selectedId === 'all') {
+        features = activeLayers.flatMap(layer => {
+          const data = layer.geojson;
+          const feats = data.type === 'FeatureCollection' ? data.features : [data];
+          return feats.map(f => ({
+            ...f,
+            properties: { ...f.properties, source: layer.displayName }
+          }));
+        });
+      } else {
+        const layer = activeLayers.find(l => l.id === selectedId);
+        if (!layer) return;
+        const data = layer.geojson;
+        features = (data.type === 'FeatureCollection' ? data.features : [data]).map(f => ({
+          ...f,
+          properties: { ...f.properties, source: layer.displayName }
+        }));
+      }
+      const geojson = { type: 'FeatureCollection', features };
+      downloadFile(JSON.stringify(geojson, null, 2), 'geoviewer-export.geojson', 'application/geo+json');
+    }
+
+    function geojsonToWKT(geometry) {
+      switch (geometry.type) {
+        case 'Point': return `POINT(${geometry.coordinates[0]} ${geometry.coordinates[1]})`;
+        case 'LineString': return `LINESTRING(${geometry.coordinates.map(c => c[0] + ' ' + c[1]).join(',')})`;
+        case 'Polygon': return `POLYGON(${geometry.coordinates.map(ring => `(${ring.map(c => c[0] + ' ' + c[1]).join(',')})`).join(',')})`;
+        case 'MultiPoint': return `MULTIPOINT(${geometry.coordinates.map(c => c[0] + ' ' + c[1]).join(',')})`;
+        case 'MultiLineString': return `MULTILINESTRING(${geometry.coordinates.map(line => `(${line.map(c => c[0] + ' ' + c[1]).join(',')})`).join(',')})`;
+        case 'MultiPolygon': return `MULTIPOLYGON(${geometry.coordinates.map(poly => `(${poly.map(ring => `(${ring.map(c => c[0] + ' ' + c[1]).join(',')})`).join(',')})`).join(',')})`;
+        default: return '';
+      }
+    }
+
+    function exportToCSV() {
+      if (activeLayers.length === 0) {
+        alert('No layers to export.');
+        return;
+      }
+      const selectedId = getSelectedLayerId();
+      let layers;
+      if (selectedId === 'all') {
+        layers = activeLayers;
+      } else {
+        const layer = activeLayers.find(l => l.id === selectedId);
+        layers = layer ? [layer] : [];
+      }
+
+      const allProps = new Set(['name', 'source']);
+      const sampleFeatures = [];
+      layers.forEach(layer => {
+        const feats = layer.geojson.type === 'FeatureCollection' ? layer.geojson.features : [layer.geojson];
+        feats.forEach(f => {
+          if (f.properties) {
+            Object.keys(f.properties).forEach(k => allProps.add(k));
+          }
+          sampleFeatures.push({ layer, feature: f });
+        });
+      });
+
+      const headers = [...allProps, 'wkt', 'lon', 'lat'];
+      const rows = [headers.join(',')];
+
+      sampleFeatures.forEach(({ layer, feature }) => {
+        if (!feature.geometry) return;
+        const wkt = geojsonToWKT(feature.geometry);
+        let lon = '', lat = '';
+        if (feature.geometry.type === 'Point') {
+          lon = feature.geometry.coordinates[0];
+          lat = feature.geometry.coordinates[1];
+        }
+        const props = feature.properties || {};
+        const row = headers.map(h => {
+          if (h === 'source') return `"${layer.displayName}"`;
+          if (h === 'wkt') return `"${wkt}"`;
+          if (h === 'lon') return lon;
+          if (h === 'lat') return lat;
+          if (h === 'name') {
+            const name = props.name || feature.id || '';
+            return `"${String(name).replace(/"/g, '""')}"`;
+          }
+          const val = props[h];
+          if (val === null || val === undefined) return '';
+          return `"${String(val).replace(/"/g, '""')}"`;
+        });
+        rows.push(row.join(','));
+      });
+
+      if (rows.length === 1) {
+        alert('No features to export.');
+        return;
+      }
+      downloadFile(rows.join('\n'), 'geoviewer-export.csv', 'text/csv');
+    }
+
+    document.getElementById('exportGeoJSONBtn').addEventListener('click', exportToGeoJSON);
+    document.getElementById('exportCSVBtn').addEventListener('click', exportToCSV);
+
+    fileButton.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', async event => {
+      const files = Array.from(event.target.files || []);
+      if (files.length === 0) return;
+
+      for (const file of files) {
+        try {
+          const geojson = await parseFile(file);
+          addGeoJSONLayer(geojson, file.name);
+        } catch (error) {
+          let msg = error.message;
+          if (msg.includes('out of memory') || msg.includes('empty after reading')) {
+            msg += '\n\nSuggestions:\n- Simplify the file (reduce coordinates precision)\n- Split into multiple smaller files\n- Remove unnecessary properties';
+          }
+          alert(`Error processing ${file.name}: ${msg}`);
+        }
+      }
+      fileInput.value = '';
+    });
+
+    map.on('load', () => {
+      updateOverlay();
+    });
+
+    map.on('mousemove', event => {
+      const coords = document.getElementById('mapCoords');
+      if (coords) {
+        coords.textContent = `Lat: ${event.lngLat.lat.toFixed(6)}  Lon: ${event.lngLat.lng.toFixed(6)}`;
+      }
+    });
+
+    map.on('click', event => {
+      const interactiveLayerIds = activeLayers.flatMap(layer => [layer.fillLayerId, layer.lineLayerId, layer.pointLayerId]).filter(Boolean).filter(id => map.getLayer(id));
+      if (interactiveLayerIds.length === 0) {
+        removePopup();
+        return;
+      }
+      const clickedFeatures = map.queryRenderedFeatures(event.point, { layers: interactiveLayerIds });
+      if (clickedFeatures.length === 0) {
+        removePopup();
+      }
+    });
+
+    map.on('contextmenu', event => {
+      event.preventDefault();
+      const mapRect = map.getCanvas().getBoundingClientRect();
+      const x = mapRect.left + event.point.x;
+      const y = mapRect.top + event.point.y;
+      showContextMenu(event.lngLat.lng, event.lngLat.lat, x, y);
+    });
+  </script>
+</body>
+</html>
