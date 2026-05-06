@@ -10,7 +10,7 @@
     body, html {
       margin: 0;
       height: 100%;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+      font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: #f8fafc;
     }
 
@@ -91,31 +91,6 @@
       box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
     }
 
-    .sidebar-header {
-      display: none;
-    }
-
-    .close-sidebar-btn {
-      display: none;
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 32px;
-      height: 32px;
-      background: transparent;
-      border: none;
-      font-size: 1.4rem;
-      color: #555;
-      cursor: pointer;
-      padding: 0;
-      line-height: 1;
-    }
-
-    .close-sidebar-btn:hover {
-      color: #111;
-      background: transparent;
-    }
-
     .resizer {
       width: 5px;
       cursor: col-resize;
@@ -139,7 +114,7 @@
 
     .sidebar .section {
       background: #fff;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 8px;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.1);
@@ -150,7 +125,7 @@
     .sidebar select {
       width: 100%;
       border: 1px solid rgba(0, 0, 0, 0.2);
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 8px 12px;
       font-size: 0.84rem;
       background: #fff;
@@ -191,7 +166,7 @@
       border-color: transparent;
       font-weight: 700;
       transition: all 0.2s ease;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 10px 12px;
       font-family: monospace;
     }
@@ -225,7 +200,7 @@
       margin-top: 6px;
       background: #fff;
       border: 1px solid rgba(0, 0, 0, 0.12);
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 4px;
     }
 
@@ -245,7 +220,7 @@
       padding: 6px 6px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       transition: background 0.2s ease;
-      border-radius: 4px;
+      border-radius: 8px;
     }
 
     .sidebar .file-item:hover {
@@ -322,7 +297,7 @@
       color: #555;
       background: rgba(0, 0, 0, 0.05);
       border: 1px solid rgba(0, 0, 0, 0.12);
-      border-radius: 4px;
+      border-radius: 8px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -458,13 +433,13 @@
     .feature-popup-content {
       background: #ffffff;
       border: 1px solid rgba(0, 0, 0, 0.15);
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 12px;
       min-width: 200px;
       max-width: 300px;
       max-height: 400px;
       overflow-y: auto;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158);
       color: #111;
       font-size: 0.82rem;
       position: relative;
@@ -472,18 +447,18 @@
 
     .feature-popup-content h4 {
       margin: 0 0 12px 0;
-      font-size: 0.9rem;
-      color: #111;
+      color: gray;
+      font-family: monospace;
     }
 
     .feature-properties {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 2px;
+      color: gray;
     }
 
     .feature-property {
-      padding: 4px 0;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     }
 
@@ -492,7 +467,8 @@
     }
 
     .feature-property strong {
-      color: #333;
+      font-family: monospace;
+      font-size: 1rem;
     }
 
     .feature-popup-close {
@@ -516,139 +492,7 @@
     .feature-popup-close:hover {
       background: rgba(0, 0, 0, 0.06);
       color: #000;
-    }
-
-    .color-picker-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .color-picker-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .color-picker-content {
-      position: relative;
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 16px;
-      max-width: 320px;
-      width: 90%;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      border: 1px solid rgba(0, 0, 0, 0.12);
-    }
-
-    .color-picker-content h3 {
-      margin: 0 0 16px 0;
-      color: #111;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    .color-picker-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
-    }
-
-    .color-option {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: transform 0.15s ease, border-color 0.15s ease;
-    }
-
-    .color-option:hover {
-      transform: scale(1.1);
-    }
-
-    .color-option.selected {
-      border-color: #111;
-      transform: scale(1.1);
-    }
-
-    .feature-popup {
-      position: absolute;
-      z-index: 1001;
-      pointer-events: auto;
-    }
-
-    .feature-popup-content {
-      background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      border-radius: 4px;
-      padding: 12px;
-      min-width: 300px;
-      max-width: 500px;
-      max-height: 400px;
-      overflow-y: auto;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-      color: #111;
-      font-size: 0.82rem;
-      position: relative;
-    }
-
-    .feature-popup-content h4 {
-      margin: 0 0 12px 0;
-      font-size: 0.9rem;
-      color: grey;
-    }
-
-    .feature-properties {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .feature-property {
-      padding: 4px 0;
-      border-bottom: 1px solid rgba(226, 232, 240, 0.5);
-    }
-
-    .feature-property:last-child {
-      border-bottom: none;
-    }
-
-    .feature-property strong {
-      color: grey;
-    }
-
-    .feature-popup-close {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: none;
-      border: none;
-      color: #64748b;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 0;
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-    }
-
-    .feature-popup-close:hover {
-      background: rgba(0, 0, 0, 0.08);
-      color: #000;
-    }
+}
 
     .context-menu {
       position: fixed;
@@ -712,16 +556,6 @@
         box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
       }
 
-      .sidebar-header {
-        display: block;
-        position: relative;
-        padding-right: 40px;
-      }
-
-      .close-sidebar-btn {
-        display: block;
-      }
-
       .map-container {
         width: 100%;
         height: calc(100vh - 60px);
@@ -745,9 +579,6 @@
 
   <div class="app" id="app">
     <aside class="sidebar">
-      <div class="sidebar-header">
-        <button class="close-sidebar-btn" id="closeSidebarBtn" aria-label="Close sidebar">×</button>
-      </div>
       <div>
         <h1>GeoViewer</h1>
         <p class="hint">Upload CSV or GeoJSON files and render the geometry on the Mapbox map. (CSV format: name,lon,lat. GeoJSON may contain Points, LineStrings, Polygons or FeatureCollections)</p>
@@ -756,7 +587,7 @@
       <div class="section" style="margin-bottom: 8px;">
         <label class="hint" style="display: block; margin-bottom: 6px;">Mapbox API Token</label>
         <div style="display: flex; gap: 6px;">
-          <input id="tokenInput" type="text" placeholder="Paste your Mapbox API token" style="flex: 1; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; padding: 8px 12px; font-size: 0.78rem; font-family: monospace;" />
+          <input id="tokenInput" type="text" placeholder="Paste your Mapbox API token" style="flex: 1; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; padding: 8px 12px; font-size: 0.78rem; font-family: monospace;" />
           <button id="applyTokenBtn" type="button" class="file-button" style="font-size: 0.75rem; padding: 8px; width:100px">Apply</button>
         </div>
         <div id="tokenWarning" style="color: #ef4444; font-size: 0.75rem; margin-top: 4px; display: none;"></div>
@@ -872,7 +703,6 @@
     }
 
     document.getElementById('hamburger').addEventListener('click', toggleSidebar);
-    document.getElementById('closeSidebarBtn').addEventListener('click', closeSidebar);
     document.getElementById('sidebarBackdrop').addEventListener('click', closeSidebar);
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeSidebar();
@@ -1298,7 +1128,7 @@ activeLayers.forEach(layer => {
           Object.keys(f.properties).forEach(key => props.add(key));
         }
       });
-      return Array.from(props).sort();
+      return Array.from(props);
     }
 
     function showLabelConfigModal(layer, btn) {
@@ -1337,7 +1167,7 @@ activeLayers.forEach(layer => {
       propLabel.textContent = 'Property:';
       propLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const propSelect = document.createElement('select');
-      propSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; font-size: 0.85rem; min-height: 30px;';
+      propSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.85rem; min-height: 30px;';
       const properties = getLayerProperties(layer);
       const noneOpt = document.createElement('option');
       noneOpt.value = '';
@@ -1360,7 +1190,7 @@ activeLayers.forEach(layer => {
       sizeLabel.textContent = 'Size:';
       sizeLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const sizeSelect = document.createElement('select');
-      sizeSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; font-size: 0.85rem;';
+      sizeSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.85rem;';
       const sizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 42, 48, 56, 64];
       sizes.forEach(s => {
         const opt = document.createElement('option');
@@ -1381,7 +1211,7 @@ activeLayers.forEach(layer => {
       const colorInput = document.createElement('input');
       colorInput.type = 'color';
       colorInput.value = layer.labelFontColor || '#111111';
-      colorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; cursor: pointer;';
+      colorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer;';
       colorRow.appendChild(colorLabel);
       colorRow.appendChild(colorInput);
       form.appendChild(colorRow);
@@ -1394,7 +1224,7 @@ activeLayers.forEach(layer => {
       const haloColorInput = document.createElement('input');
       haloColorInput.type = 'color';
       haloColorInput.value = layer.labelHaloColor || '#ffffff';
-      haloColorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; cursor: pointer;';
+      haloColorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer;';
       haloColorRow.appendChild(haloColorLabel);
       haloColorRow.appendChild(haloColorInput);
       form.appendChild(haloColorRow);
@@ -1428,11 +1258,11 @@ activeLayers.forEach(layer => {
       btnRow.style.cssText = 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;';
       const cancelBtn = document.createElement('button');
       cancelBtn.textContent = 'Cancel';
-      cancelBtn.style.cssText = 'padding: 8px 16px; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; background: #f5f5f5; cursor: pointer; font-size: 0.85rem;';
+      cancelBtn.style.cssText = 'padding: 8px 16px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; background: #f5f5f5; cursor: pointer; font-size: 0.85rem;';
       cancelBtn.addEventListener('click', () => overlay.remove());
       const applyBtn = document.createElement('button');
       applyBtn.textContent = 'Apply';
-      applyBtn.style.cssText = 'padding: 8px 16px; border: none; border-radius: 4px; background: #3d5a80; color: #fff; cursor: pointer; font-size: 0.85rem;';
+      applyBtn.style.cssText = 'padding: 8px 16px; border: none; border-radius: 8px; background: #3d5a80; color: #fff; cursor: pointer; font-size: 0.85rem;';
       applyBtn.addEventListener('click', () => {
         const selectedProp = propSelect.value;
         layer.labelProperty = selectedProp ? selectedProp : null;
@@ -1562,12 +1392,12 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       // Add latitude and longitude separately
       const latDiv = document.createElement('div');
       latDiv.className = 'feature-property';
-      latDiv.innerHTML = `Latitude: <strong>${lngLat.lat.toFixed(6)}</strong>`;
+      latDiv.innerHTML = `Latitude <strong>${lngLat.lat.toFixed(6)}</strong>`;
       propList.appendChild(latDiv);
 
       const lonDiv = document.createElement('div');
       lonDiv.className = 'feature-property';
-      lonDiv.innerHTML = `Longitude: <strong>${lngLat.lng.toFixed(6)}</strong>`;
+      lonDiv.innerHTML = `Longitude <strong>${lngLat.lng.toFixed(6)}</strong>`;
       propList.appendChild(lonDiv);
 
       // Add other properties
@@ -1575,7 +1405,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
         if (properties[key] !== null && properties[key] !== undefined) {
           const propDiv = document.createElement('div');
           propDiv.className = 'feature-property';
-          propDiv.innerHTML = `${key}: <strong>${properties[key]}</strong>`;
+          propDiv.innerHTML = `${key} <strong>${properties[key]}</strong>`;
           propList.appendChild(propDiv);
         }
       });
