@@ -187,6 +187,14 @@
       color: #fff;
     }
 
+    #recordTrajectoryBtn.recording {
+      background: #dc2626;
+    }
+
+    #recordTrajectoryBtn.recording:hover {
+      background: #b91c1c;
+    }
+
     .sidebar .hint {
       font-size: small;
       font-family: monospace;
@@ -366,7 +374,7 @@
     }
 
     .mapboxgl-ctrl-top-right {
-      top: 48px;
+      top: 38px;
     }
 
     .color-picker-modal {
@@ -630,6 +638,15 @@
           <button id="exportCSVBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">CSV</button>
         </div>
       </div>
+
+      <div class="section" style="margin-top: 8px;">
+        <label class="hint" style="display: block; margin-bottom: 6px;">Trajectory</label>
+        <div style="display: flex; gap: 6px;">
+          <button id="recordTrajectoryBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Record</button>
+          <button id="clearTrajectoryBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Clear</button>
+          <button id="exportTrajectoryBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Export</button>
+        </div>
+      </div>
     </aside>
     <div class="resizer" id="resizer" title="Drag to resize sidebar"></div>
     <main class="map-container">
@@ -731,6 +748,163 @@
           showUserHeading: true,
           showAccuracyCircle: true
         }), 'top-right');
+
+        const TRAJECTORY_STORAGE_KEY = 'geoviewer_trajectory';
+        const TRAJ_SOURCE_ID = 'trajectory-source';
+        const TRAJ_LINE_LAYER_ID = 'trajectory-line';
+        const TRAJ_POINT_LAYER_ID = 'trajectory-point';
+
+        let trajectoryData = {
+          coordinates: JSON.parse(localStorage.getItem(TRAJECTORY_STORAGE_KEY) || '[]'),
+          isRecording: false
+        };
+        let watchId = null;
+
+        function saveTrajectory() {
+          localStorage.setItem(TRAJECTORY_STORAGE_KEY, JSON.stringify(trajectoryData.coordinates));
+        }
+
+        function updateTrajectoryLayers() {
+          if (!map || !map.isStyleLoaded() || trajectoryData.coordinates.length === 0) return;
+
+          const geojson = {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                geometry: {
+                  type: 'LineString',
+                  coordinates: trajectoryData.coordinates.map(c => [c.lon, c.lat])
+                },
+                properties: {}
+              },
+              {
+                type: 'Feature',
+                geometry: {
+                  type: 'Point',
+                  coordinates: trajectoryData.coordinates[trajectoryData.coordinates.length - 1]
+                },
+                properties: {}
+              }
+            ]
+          };
+
+          if (map.getSource(TRAJ_SOURCE_ID)) {
+            map.getSource(TRAJ_SOURCE_ID).setData(geojson);
+          } else {
+            map.addSource(TRAJ_SOURCE_ID, { type: 'geojson', data: geojson });
+            map.addLayer({
+              id: TRAJ_LINE_LAYER_ID,
+              type: 'line',
+              source: TRAJ_SOURCE_ID,
+              layout: { 'line-join': 'round', 'line-cap': 'round' },
+              paint: { 'line-color': '#3d5a80', 'line-width': 2 },
+              filter: ['==', '$type', 'LineString']
+            });
+            map.addLayer({
+              id: TRAJ_POINT_LAYER_ID,
+              type: 'circle',
+              source: TRAJ_SOURCE_ID,
+              paint: { 'circle-radius': 4, 'circle-color': '#3d5a80', 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 },
+              filter: ['==', '$type', 'Point']
+            });
+          }
+        }
+
+        function startRecording() {
+          if (watchId) return;
+          trajectoryData.isRecording = true;
+          const btn = document.getElementById('recordTrajectoryBtn');
+          btn.classList.add('recording');
+          updateRecordButtonText();
+
+          watchId = navigator.geolocation.watchPosition(
+            (position) => {
+              const point = {
+                lat: position.coords.latitude,
+                lon: position.coords.longitude,
+                timestamp: position.timestamp,
+                heading: position.coords.heading || null,
+                accuracy: position.coords.accuracy
+              };
+              trajectoryData.coordinates.push(point);
+              saveTrajectory();
+              updateTrajectoryLayers();
+              updateRecordButtonText();
+            },
+            (error) => {
+              console.error('Geolocation error:', error);
+            },
+            { enableHighAccuracy: true, maximumAge: 1000 }
+          );
+        }
+
+        function stopRecording() {
+          if (watchId) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+          }
+          trajectoryData.isRecording = false;
+          const btn = document.getElementById('recordTrajectoryBtn');
+          btn.classList.remove('recording');
+          updateRecordButtonText();
+        }
+
+        function clearTrajectory() {
+          stopRecording();
+          trajectoryData.coordinates = [];
+          saveTrajectory();
+          if (map) {
+            if (map.getLayer(TRAJ_LINE_LAYER_ID)) map.removeLayer(TRAJ_LINE_LAYER_ID);
+            if (map.getLayer(TRAJ_POINT_LAYER_ID)) map.removeLayer(TRAJ_POINT_LAYER_ID);
+            if (map.getSource(TRAJ_SOURCE_ID)) map.removeSource(TRAJ_SOURCE_ID);
+          }
+        }
+
+        function exportTrajectory() {
+          if (trajectoryData.coordinates.length === 0) return;
+          const geojson = {
+            type: 'FeatureCollection',
+            features: trajectoryData.coordinates.map(c => ({
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: [c.lon, c.lat] },
+              properties: { timestamp: c.timestamp, heading: c.heading, accuracy: c.accuracy }
+            }))
+          };
+          const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `trajectory_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.geojson`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+
+        function updateRecordButtonText() {
+          const btn = document.getElementById('recordTrajectoryBtn');
+          if (trajectoryData.isRecording) {
+            btn.textContent = `Stop (${trajectoryData.coordinates.length})`;
+          } else {
+            btn.textContent = 'Record';
+          }
+        }
+
+        document.getElementById('recordTrajectoryBtn').addEventListener('click', () => {
+          if (trajectoryData.isRecording) {
+            stopRecording();
+          } else {
+            startRecording();
+          }
+        });
+
+        document.getElementById('clearTrajectoryBtn').addEventListener('click', clearTrajectory);
+        document.getElementById('exportTrajectoryBtn').addEventListener('click', exportTrajectory);
+
+        map.on('load', () => {
+          if (trajectoryData.coordinates.length > 0) {
+            updateTrajectoryLayers();
+          }
+        });
       } catch (e) {
         console.error('Map creation failed:', e);
         map = null;
@@ -1908,36 +2082,38 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       fileInput.value = '';
     });
 
-    map.on('load', () => {
-      updateOverlay();
-    });
+    if (map) {
+      map.on('load', () => {
+        updateOverlay();
+      });
 
-    map.on('mousemove', event => {
-      const coords = document.getElementById('mapCoords');
-      if (coords) {
-        coords.textContent = `Lat: ${event.lngLat.lat.toFixed(6)}  Lon: ${event.lngLat.lng.toFixed(6)}`;
-      }
-    });
+      map.on('mousemove', event => {
+        const coords = document.getElementById('mapCoords');
+        if (coords) {
+          coords.textContent = `Lat: ${event.lngLat.lat.toFixed(6)}  Lon: ${event.lngLat.lng.toFixed(6)}`;
+        }
+      });
 
-    map.on('click', event => {
-      const interactiveLayerIds = activeLayers.flatMap(layer => [layer.fillLayerId, layer.lineLayerId, layer.pointLayerId]).filter(Boolean).filter(id => map.getLayer(id));
-      if (interactiveLayerIds.length === 0) {
-        removePopup();
-        return;
-      }
-      const clickedFeatures = map.queryRenderedFeatures(event.point, { layers: interactiveLayerIds });
-      if (clickedFeatures.length === 0) {
-        removePopup();
-      }
-    });
+      map.on('click', event => {
+        const interactiveLayerIds = activeLayers.flatMap(layer => [layer.fillLayerId, layer.lineLayerId, layer.pointLayerId]).filter(Boolean).filter(id => map.getLayer(id));
+        if (interactiveLayerIds.length === 0) {
+          removePopup();
+          return;
+        }
+        const clickedFeatures = map.queryRenderedFeatures(event.point, { layers: interactiveLayerIds });
+        if (clickedFeatures.length === 0) {
+          removePopup();
+        }
+      });
 
-    map.on('contextmenu', event => {
-      event.preventDefault();
-      const mapRect = map.getCanvas().getBoundingClientRect();
-      const x = mapRect.left + event.point.x;
-      const y = mapRect.top + event.point.y;
-      showContextMenu(event.lngLat.lng, event.lngLat.lat, x, y);
-    });
+      map.on('contextmenu', event => {
+        event.preventDefault();
+        const mapRect = map.getCanvas().getBoundingClientRect();
+        const x = mapRect.left + event.point.x;
+        const y = mapRect.top + event.point.y;
+        showContextMenu(event.lngLat.lng, event.lngLat.lat, x, y);
+      });
+    }
   </script>
 </body>
 </html>
