@@ -350,6 +350,8 @@
 
 .map-overlay {
       position: absolute;
+      top: 8px;
+      right: 4px;
       background: rgba(255, 255, 255, 0.95);
       color: #111;
       padding: 8px 12px;
@@ -361,6 +363,10 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       font-family: monospace;
       font-size: 0.78rem;
+    }
+
+    .mapboxgl-ctrl-top-right {
+      top: 48px;
     }
 
     .color-picker-modal {
@@ -719,6 +725,12 @@
           center: [-100, 40],
           zoom: 3.5,
         });
+        map.addControl(new mapboxgl.GeolocateControl({
+          positionOptions: { enableHighAccuracy: true },
+          trackUserLocation: true,
+          showUserHeading: true,
+          showAccuracyCircle: true
+        }), 'top-right');
       } catch (e) {
         console.error('Map creation failed:', e);
         map = null;
