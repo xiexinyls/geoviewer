@@ -257,11 +257,17 @@
     }
 
     .sidebar .file-item .legend-swatch {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
+      width: 18px;
+      height: 18px;
       flex-shrink: 0;
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar .file-item .legend-swatch svg {
+      width: 16px;
+      height: 16px;
     }
 
     .sidebar .file-item .legend-text {
@@ -574,9 +580,18 @@
 
       .map-container {
         width: 100%;
-        height: calc(100vh - 60px);
-        margin-top: 60px;
+        height: 100vh;
+        margin-top: 0;
       }
+
+      .map-overlay {
+        top: 52px;
+      }
+
+      .mapboxgl-ctrl-top-right {
+        top: 52px;
+      }
+    }
 
       .resizer {
         display: none;
@@ -1131,7 +1146,21 @@ activeLayers.forEach(layer => {
       const item = fileList.querySelector(`[data-layer-id="${layerId}"]`);
       if (!item) return;
       const swatch = item.querySelector('.legend-swatch');
-      if (swatch) swatch.style.backgroundColor = newColor;
+      if (!swatch) return;
+
+      const svg = swatch.querySelector('svg');
+      if (svg) {
+        const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
+        if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+          swatch.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="' + newColor + '" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="6"/></svg>';
+        } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
+          swatch.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + newColor + '" stroke-width="3" stroke-linecap="round"><path d="M4 18L10 12L14 16L20 8"/></svg>';
+        } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+          swatch.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="' + newColor + '" fill-opacity="0.4" stroke="' + newColor + '" stroke-width="2"><polygon points="12,3 20,9 17,20 7,20 4,9"/></svg>';
+        }
+      } else {
+        swatch.style.backgroundColor = newColor;
+      }
     }
 
     function showColorPicker(layerId, currentColor) {
@@ -1221,7 +1250,7 @@ activeLayers.forEach(layer => {
       input.replaceWith(span);
     }
 
-    function addFileItem(name, count, id, color) {
+    function addFileItem(name, count, id, color, geometryType) {
       const item = document.createElement('div');
       item.className = 'file-item';
       item.dataset.layerId = id;
@@ -1231,10 +1260,22 @@ activeLayers.forEach(layer => {
 
       const swatch = document.createElement('span');
       swatch.className = 'legend-swatch';
-      swatch.style.backgroundColor = color;
       swatch.style.cursor = 'pointer';
       swatch.title = 'Click to change color';
-      swatch.addEventListener('click', () => showColorPicker(id, color));
+      swatch.addEventListener('click', () => {
+        const layer = activeLayers.find(l => l.id === id);
+        showColorPicker(id, layer ? layer.color : color);
+      });
+
+      if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+        swatch.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + color + '" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="5"/></svg>';
+      } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
+        swatch.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="3" stroke-linecap="round"><path d="M4 18L10 12L14 16L20 8"/></svg>';
+      } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+        swatch.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + color + '" fill-opacity="0.4" stroke="' + color + '" stroke-width="1.5"><polygon points="12,3 20,9 17,20 7,20 4,9"/></svg>';
+      } else {
+        swatch.style.backgroundColor = color;
+      }
 
       const label = document.createElement('span');
       label.className = 'legend-text';
@@ -1291,7 +1332,7 @@ activeLayers.forEach(layer => {
       fileList.appendChild(item);
     }
 
-    function toggleLayerVisibility(layerId, checkbox) {
+function toggleLayerVisibility(layerId, checkbox) {
       const layer = activeLayers.find(l => l.id === layerId);
       if (!layer) return;
 
@@ -1301,9 +1342,6 @@ activeLayers.forEach(layer => {
       if (map.getLayer(layer.fillLayerId)) map.setLayoutProperty(layer.fillLayerId, 'visibility', visibility);
       if (map.getLayer(layer.lineLayerId)) map.setLayoutProperty(layer.lineLayerId, 'visibility', visibility);
       if (map.getLayer(layer.pointLayerId)) map.setLayoutProperty(layer.pointLayerId, 'visibility', visibility);
-      if (map.getLayer(layer.labelLayerId)) {
-        map.setLayoutProperty(layer.labelLayerId, 'visibility', layer.labelsVisible && checkbox.checked ? 'visible' : 'none');
-      }
 
       checkbox.title = checkbox.checked ? 'Toggle layer visibility' : 'Layer hidden - click to show';
     }
@@ -1375,11 +1413,11 @@ activeLayers.forEach(layer => {
       const sizeRow = document.createElement('div');
       sizeRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
       const sizeLabel = document.createElement('label');
-      sizeLabel.textContent = 'Size:';
+      sizeLabel.textContent = 'Text Size:';
       sizeLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const sizeSelect = document.createElement('select');
       sizeSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.85rem;';
-      const sizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 42, 48, 56, 64];
+      const sizes = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 24, 30];
       sizes.forEach(s => {
         const opt = document.createElement('option');
         opt.value = s;
@@ -1394,7 +1432,7 @@ activeLayers.forEach(layer => {
       const colorRow = document.createElement('div');
       colorRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
       const colorLabel = document.createElement('label');
-      colorLabel.textContent = 'Color:';
+      colorLabel.textContent = 'Text Color:';
       colorLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const colorInput = document.createElement('input');
       colorInput.type = 'color';
@@ -1487,7 +1525,7 @@ activeLayers.forEach(layer => {
         const lineWidthRow = document.createElement('div');
         lineWidthRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
         const lineWidthLabel = document.createElement('label');
-        lineWidthLabel.textContent = 'Stroke:';
+        lineWidthLabel.textContent = 'Line Stroke:';
         lineWidthLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
         lineWidthRow.appendChild(lineWidthLabel);
         lineWidthRow.appendChild(lineWidthInput);
@@ -1505,7 +1543,7 @@ activeLayers.forEach(layer => {
         fillOpacityInput.style.cssText = 'flex: 1; cursor: pointer;';
         const fillOpacityValue = document.createElement('span');
         fillOpacityValue.textContent = Math.round(fillOpacityInput.value * 100) + '%';
-        fillOpacityValue.style.cssText = 'font-size: 0.8rem; color: #666; min-width: 40px;';
+        fillOpacityValue.style.cssText = 'font-size: 0.8rem; color: #666; min-width: 30px;';
         fillOpacityInput.addEventListener('input', () => { fillOpacityValue.textContent = Math.round(fillOpacityInput.value * 100) + '%'; });
         const fillOpacityRow = document.createElement('div');
         fillOpacityRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
@@ -1914,7 +1952,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 
         const subDisplayName = `${displayName} ${geometryType}`;
         activeLayers.push({ id, sourceId, fillLayerId, lineLayerId, pointLayerId, labelLayerId, featureCount, color, geojson: typeGeojson, displayName: subDisplayName, labelsVisible: false, labelProperty: null, labelFontSize: 12, labelFontColor: color, labelHaloColor: '#ffffff', labelHaloWidth: 2, visible: true });
-        addFileItem(subDisplayName, featureCount, id, color);
+        addFileItem(subDisplayName, featureCount, id, color, geometryType);
         totalFeatures += featureCount;
       });
 
