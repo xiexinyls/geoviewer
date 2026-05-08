@@ -1440,6 +1440,84 @@ activeLayers.forEach(layer => {
       haloWidthRow.appendChild(haloWidthValue);
       form.appendChild(haloWidthRow);
 
+      const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
+      const isPoint = geometryType === 'Point' || geometryType === 'MultiPoint';
+      const isLine = geometryType === 'LineString' || geometryType === 'MultiLineString';
+      const isPolygon = geometryType === 'Polygon' || geometryType === 'MultiPolygon';
+
+      let dotInput = null;
+      let lineWidthInput = null;
+      let fillOpacityInput = null;
+
+      if (isPoint) {
+        dotInput = document.createElement('input');
+        dotInput.type = 'range';
+        dotInput.min = '2';
+        dotInput.max = '20';
+        dotInput.step = '1';
+        dotInput.value = layer.dotRadius || 6;
+        dotInput.style.cssText = 'flex: 1; cursor: pointer;';
+        const dotValue = document.createElement('span');
+        dotValue.textContent = dotInput.value + 'px';
+        dotValue.style.cssText = 'font-size: 0.8rem; color: #666; min-width: 30px;';
+        dotInput.addEventListener('input', () => { dotValue.textContent = dotInput.value + 'px'; });
+        const dotRow = document.createElement('div');
+        dotRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+        const dotLabel = document.createElement('label');
+        dotLabel.textContent = 'Dot Size:';
+        dotLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
+        dotRow.appendChild(dotLabel);
+        dotRow.appendChild(dotInput);
+        dotRow.appendChild(dotValue);
+        form.appendChild(dotRow);
+      }
+
+      if (isLine || isPolygon) {
+        lineWidthInput = document.createElement('input');
+        lineWidthInput.type = 'range';
+        lineWidthInput.min = '1';
+        lineWidthInput.max = '12';
+        lineWidthInput.step = '0.5';
+        lineWidthInput.value = layer.lineWidth || 3;
+        lineWidthInput.style.cssText = 'flex: 1; cursor: pointer;';
+        const lineWidthValue = document.createElement('span');
+        lineWidthValue.textContent = lineWidthInput.value + 'px';
+        lineWidthValue.style.cssText = 'font-size: 0.8rem; color: #666; min-width: 30px;';
+        lineWidthInput.addEventListener('input', () => { lineWidthValue.textContent = lineWidthInput.value + 'px'; });
+        const lineWidthRow = document.createElement('div');
+        lineWidthRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+        const lineWidthLabel = document.createElement('label');
+        lineWidthLabel.textContent = 'Stroke:';
+        lineWidthLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
+        lineWidthRow.appendChild(lineWidthLabel);
+        lineWidthRow.appendChild(lineWidthInput);
+        lineWidthRow.appendChild(lineWidthValue);
+        form.appendChild(lineWidthRow);
+      }
+
+      if (isPolygon) {
+        fillOpacityInput = document.createElement('input');
+        fillOpacityInput.type = 'range';
+        fillOpacityInput.min = '0';
+        fillOpacityInput.max = '1';
+        fillOpacityInput.step = '0.05';
+        fillOpacityInput.value = layer.fillOpacity ?? 0.2;
+        fillOpacityInput.style.cssText = 'flex: 1; cursor: pointer;';
+        const fillOpacityValue = document.createElement('span');
+        fillOpacityValue.textContent = Math.round(fillOpacityInput.value * 100) + '%';
+        fillOpacityValue.style.cssText = 'font-size: 0.8rem; color: #666; min-width: 40px;';
+        fillOpacityInput.addEventListener('input', () => { fillOpacityValue.textContent = Math.round(fillOpacityInput.value * 100) + '%'; });
+        const fillOpacityRow = document.createElement('div');
+        fillOpacityRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
+        const fillOpacityLabel = document.createElement('label');
+        fillOpacityLabel.textContent = 'Fill Opacity:';
+        fillOpacityLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
+        fillOpacityRow.appendChild(fillOpacityLabel);
+        fillOpacityRow.appendChild(fillOpacityInput);
+        fillOpacityRow.appendChild(fillOpacityValue);
+        form.appendChild(fillOpacityRow);
+      }
+
       modal.appendChild(form);
 
       const btnRow = document.createElement('div');
@@ -1458,6 +1536,27 @@ activeLayers.forEach(layer => {
         layer.labelFontColor = colorInput.value;
         layer.labelHaloColor = haloColorInput.value;
         layer.labelHaloWidth = parseFloat(haloWidthInput.value);
+
+        if (isPoint) {
+          layer.dotRadius = parseInt(dotInput.value, 10);
+          if (map.getLayer(layer.pointLayerId)) {
+            map.setPaintProperty(layer.pointLayerId, 'circle-radius', layer.dotRadius);
+          }
+        }
+
+        if (isLine || isPolygon) {
+          layer.lineWidth = parseFloat(lineWidthInput.value);
+          if (map.getLayer(layer.lineLayerId)) {
+            map.setPaintProperty(layer.lineLayerId, 'line-width', layer.lineWidth);
+          }
+        }
+
+        if (isPolygon) {
+          layer.fillOpacity = parseFloat(fillOpacityInput.value);
+          if (map.getLayer(layer.fillLayerId)) {
+            map.setPaintProperty(layer.fillLayerId, 'fill-opacity', layer.fillOpacity);
+          }
+        }
 
         if (!map.getLayer(layer.labelLayerId)) {
           alert('Label layer not found. This layer may not support labels.');
@@ -1714,156 +1813,126 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       return result;
     }
 
-    function addGeoJSONLayer(geojson, displayName) {
-      const id = `layer-${currentLayerIndex++}`;
-      const sourceId = `${id}-source`;
-      const fillLayerId = `${id}-fill`;
-      const lineLayerId = `${id}-line`;
-      const pointLayerId = `${id}-point`;
-      const labelLayerId = `${id}-label`;
-      const layerColor = colorPalette[(currentLayerIndex - 1) % colorPalette.length];
-
-      map.addSource(sourceId, { type: 'geojson', data: geojson });
-
-      const fillLayers = [];
-      const lineLayers = [];
-      const pointLayers = [];
-
-      const geometryTypes = new Set();
+    function groupFeaturesByGeometryType(geojson) {
+      const groups = {};
       const features = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
       features.forEach(feature => {
         if (!feature || !feature.geometry) return;
-        geometryTypes.add(feature.geometry.type);
+        const type = feature.geometry.type;
+        if (!groups[type]) groups[type] = [];
+        groups[type].push(feature);
+      });
+      return groups;
+    }
+
+    function addGeoJSONLayer(geojson, displayName) {
+      const groups = groupFeaturesByGeometryType(geojson);
+      const geometryTypes = Object.keys(groups);
+
+      const color = colorPalette[(currentLayerIndex) % colorPalette.length];
+      currentLayerIndex++;
+
+      Object.keys(groups).forEach(geometryType => {
+        const id = `layer-${currentLayerIndex++}`;
+        const sourceId = `${id}-source`;
+        const fillLayerId = `${id}-fill`;
+        const lineLayerId = `${id}-line`;
+        const pointLayerId = `${id}-point`;
+        const labelLayerId = `${id}-label`;
+        const features = groups[geometryType];
+        const featureCount = features.length;
+
+        const typeGeojson = { type: 'FeatureCollection', features };
+
+        map.addSource(sourceId, { type: 'geojson', data: typeGeojson });
+
+        if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+          map.addLayer({
+            id: fillLayerId,
+            type: 'fill',
+            source: sourceId,
+            paint: { 'fill-color': color, 'fill-opacity': 0.2 },
+          });
+          map.on('click', fillLayerId, (e) => {
+            const feats = map.queryRenderedFeatures(e.point, { layers: [fillLayerId] });
+            if (feats.length > 0) showFeaturePopup(feats[0], e.lngLat, subDisplayName);
+          });
+          map.on('mouseenter', fillLayerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+          map.on('mouseleave', fillLayerId, () => { map.getCanvas().style.cursor = ''; });
+        }
+
+        if (geometryType === 'LineString' || geometryType === 'MultiLineString' || geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+          map.addLayer({
+            id: lineLayerId,
+            type: 'line',
+            source: sourceId,
+            paint: { 'line-color': color, 'line-width': 3 },
+          });
+          map.on('click', lineLayerId, (e) => {
+            const feats = map.queryRenderedFeatures(e.point, { layers: [lineLayerId] });
+            if (feats.length > 0) showFeaturePopup(feats[0], e.lngLat, subDisplayName);
+          });
+          map.on('mouseenter', lineLayerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+          map.on('mouseleave', lineLayerId, () => { map.getCanvas().style.cursor = ''; });
+        }
+
+        if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+          map.addLayer({
+            id: pointLayerId,
+            type: 'circle',
+            source: sourceId,
+            paint: { 'circle-radius': 6, 'circle-color': color, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 },
+          });
+          map.on('click', pointLayerId, (e) => {
+            const feats = map.queryRenderedFeatures(e.point, { layers: [pointLayerId] });
+            if (feats.length > 0) showFeaturePopup(feats[0], e.lngLat, subDisplayName);
+          });
+          map.on('mouseenter', pointLayerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+          map.on('mouseleave', pointLayerId, () => { map.getCanvas().style.cursor = ''; });
+        }
+
+        if (geometryType === 'Point' || geometryType === 'MultiPoint' || geometryType === 'LineString' || geometryType === 'MultiLineString' || geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+          map.addLayer({
+            id: labelLayerId,
+            type: 'symbol',
+            source: sourceId,
+            layout: {
+              'text-field': ['get', 'name'],
+              'text-size': 12,
+              'symbol-placement': 'point',
+              'text-anchor': 'bottom',
+              'text-offset': [0, 1.5],
+              'visibility': 'none'
+            },
+            paint: {
+              'text-color': color,
+              'text-halo-color': '#ffffff',
+              'text-halo-width': 2
+            }
+          });
+        }
+
+        const subDisplayName = `${displayName} ${geometryType}`;
+        activeLayers.push({ id, sourceId, fillLayerId, lineLayerId, pointLayerId, labelLayerId, featureCount, color, geojson: typeGeojson, displayName: subDisplayName, labelsVisible: false, labelProperty: null, labelFontSize: 12, labelFontColor: color, labelHaloColor: '#ffffff', labelHaloWidth: 2, visible: true });
+        addFileItem(subDisplayName, featureCount, id, color);
+        totalFeatures += featureCount;
       });
 
-      if ([...geometryTypes].some(type => ['Polygon', 'MultiPolygon'].includes(type))) {
-        fillLayers.push({ id: fillLayerId, paint: { 'fill-color': layerColor, 'fill-opacity': 0.2 } });
-      }
-
-      if ([...geometryTypes].some(type => ['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'].includes(type))) {
-        lineLayers.push({ id: lineLayerId, paint: { 'line-color': layerColor, 'line-width': 3 } });
-      }
-
-      if ([...geometryTypes].some(type => ['Point', 'MultiPoint'].includes(type))) {
-        pointLayers.push({ id: pointLayerId, paint: { 'circle-radius': 6, 'circle-color': layerColor, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 } });
-      }
-
-      if (fillLayers.length) {
-        map.addLayer({
-          id: fillLayerId,
-          type: 'fill',
-          source: sourceId,
-          paint: fillLayers[0].paint,
-        });
-
-        map.on('click', fillLayerId, (e) => {
-          const features = map.queryRenderedFeatures(e.point, { layers: [fillLayerId] });
-          if (features.length > 0) {
-            const layer = activeLayers.find(l => l.sourceId === sourceId);
-            showFeaturePopup(features[0], e.lngLat, layer ? layer.displayName : displayName);
-          }
-        });
-
-        map.on('mouseenter', fillLayerId, () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', fillLayerId, () => {
-          map.getCanvas().style.cursor = '';
-        });
-      }
-      if (lineLayers.length) {
-        map.addLayer({
-          id: lineLayerId,
-          type: 'line',
-          source: sourceId,
-          paint: lineLayers[0].paint,
-        });
-
-        map.on('click', lineLayerId, (e) => {
-          const features = map.queryRenderedFeatures(e.point, { layers: [lineLayerId] });
-          if (features.length > 0) {
-            const layer = activeLayers.find(l => l.sourceId === sourceId);
-            showFeaturePopup(features[0], e.lngLat, layer ? layer.displayName : displayName);
-          }
-        });
-
-        map.on('mouseenter', lineLayerId, () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', lineLayerId, () => {
-          map.getCanvas().style.cursor = '';
-        });
-      }
-      if (pointLayers.length) {
-        map.addLayer({
-          id: pointLayerId,
-          type: 'circle',
-          source: sourceId,
-          paint: pointLayers[0].paint,
-        });
-
-        // Add click handler for point features
-        map.on('click', pointLayerId, (e) => {
-          const features = map.queryRenderedFeatures(e.point, { layers: [pointLayerId] });
-          if (features.length > 0) {
-            const layer = activeLayers.find(l => l.sourceId === sourceId);
-            showFeaturePopup(features[0], e.lngLat, layer ? layer.displayName : displayName);
-          }
-        });
-
-        // Change cursor to pointer when hovering over points
-        map.on('mouseenter', pointLayerId, () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', pointLayerId, () => {
-          map.getCanvas().style.cursor = '';
-        });
-      }
-
-      const defaultLabelFontFamily = 'sans-serif';
-      const defaultLabelFontSize = 12;
-      const defaultLabelFontColor = layerColor;
-      const defaultLabelHaloColor = '#ffffff';
-      const defaultLabelHaloWidth = 2;
-
-      if ([...geometryTypes].some(type => ['Point', 'MultiPoint', 'Polygon', 'MultiPolygon', 'LineString', 'MultiLineString'].includes(type))) {
-        map.addLayer({
-          id: labelLayerId,
-          type: 'symbol',
-          source: sourceId,
-          layout: {
-            'text-field': ['get', 'name'],
-            'text-size': defaultLabelFontSize,
-            'symbol-placement': 'point',
-            'text-anchor': 'bottom',
-            'text-offset': [0, 1.5],
-            'visibility': 'none'
-          },
-          paint: {
-            'text-color': defaultLabelFontColor,
-            'text-halo-color': defaultLabelHaloColor,
-            'text-halo-width': defaultLabelHaloWidth
-          }
-        });
-      }
-
-      const featureCount = features.length;
-      activeLayers.push({ id, sourceId, fillLayerId, lineLayerId, pointLayerId, labelLayerId, featureCount, color: layerColor, geojson, displayName, labelsVisible: false, labelProperty: null, labelFontFamily: defaultLabelFontFamily, labelFontSize: defaultLabelFontSize, labelFontColor: defaultLabelFontColor, labelHaloColor: defaultLabelHaloColor, labelHaloWidth: defaultLabelHaloWidth, visible: true });
-      addFileItem(displayName, featureCount, id, layerColor);
-      totalFeatures += featureCount;
-      updateOverlay();
-      updateExportLayerSelect();
-
-      if (featureCount > 0) {
+      if (geometryTypes.length > 0) {
+        const allFeatures = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
         const bounds = new mapboxgl.LngLatBounds();
-        features.forEach(feature => {
+        allFeatures.forEach(feature => {
           if (!feature.geometry) return;
           const coords = feature.geometry.type === 'Point' ? [feature.geometry.coordinates] : getAllCoordinates(feature.geometry);
           coords.forEach(coord => bounds.extend(coord));
         });
-        if (bounds.isEmpty()) return;
-        map.fitBounds(bounds, { padding: 40, duration: 800, maxZoom: 14 });
+        if (!bounds.isEmpty()) {
+          map.fitBounds(bounds, { padding: 40, duration: 800, maxZoom: 14 });
+        }
       }
+
+      updateOverlay();
+      updateExportLayerSelect();
     }
 
     function getAllCoordinates(geometry) {
