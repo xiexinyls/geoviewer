@@ -922,21 +922,22 @@
               const dt = (points[i].timestamp - points[i - 1].timestamp) / 3600000;
               if (dt > 0) speeds.push(d / dt);
             }
-            const timeStart = new Date(points[0].timestamp);
-            const timeEnd = new Date(points[points.length - 1].timestamp);
-            const timeTotalSec = (timeEnd - timeStart) / 1000;
+            const timeTotalSec = (new Date(points[points.length - 1].timestamp) - new Date(points[0].timestamp)) / 1000;
             const timeTotalStr = String(Math.floor(timeTotalSec / 3600)).padStart(2, '0') + ':' + String(Math.floor((timeTotalSec % 3600) / 60)).padStart(2, '0') + ':' + String(Math.floor(timeTotalSec % 60)).padStart(2, '0');
-            const offset = timeStart.toLocaleString('en', { timeZoneName: 'short', hour12: false }).split(' ').pop();
-            const fmt = ts => new Date(ts).toLocaleString('sv', { hour12: false, fractionalSecondDigits: 3 }) + ' ' + offset;
+            const fmt = ts => {
+              const d = new Date(ts);
+              const offset = d.toLocaleString('en', { timeZoneName: 'short', hour12: false }).split(' ').pop();
+              return d.toLocaleString('sv', { hour12: false, fractionalSecondDigits: 3 }) + ' ' + offset;
+            };
             return {
               segment_index: idx,
-              distance: Math.round(totalDist * 100) / 100,
+              distance_km: Math.round(totalDist * 100) / 100,
               time_start: fmt(points[0].timestamp),
               time_end: fmt(points[points.length - 1].timestamp),
               time_total: timeTotalStr,
-              speed_mean: timeTotalSec > 0 ? Math.round((totalDist / (timeTotalSec / 3600)) * 100) / 100 : null,
-              speed_min: speeds.length > 0 ? Math.round(Math.min(...speeds) * 100) / 100 : null,
-              speed_max: speeds.length > 0 ? Math.round(Math.max(...speeds) * 100) / 100 : null,
+              speed_mean_kmh: timeTotalSec > 0 ? Math.round((totalDist / (timeTotalSec / 3600)) * 100) / 100 : null,
+              speed_min_kmh: speeds.length > 0 ? Math.round(Math.min(...speeds) * 100) / 100 : null,
+              speed_max_kmh: speeds.length > 0 ? Math.round(Math.max(...speeds) * 100) / 100 : null,
               pointCount: points.length,
               points: points
             };
@@ -961,7 +962,7 @@
           const lineFeatures = segments.map(seg => ({
             type: 'Feature',
             geometry: { type: 'LineString', coordinates: seg.points.map(p => [p.lon, p.lat]) },
-            properties: { segment_index: seg.segment_index, distance: seg.distance, time_start: seg.time_start, time_end: seg.time_end, time_total: seg.time_total, speed_mean: seg.speed_mean, speed_min: seg.speed_min, speed_max: seg.speed_max, pointCount: seg.pointCount }
+            properties: { segment_index: seg.segment_index, distance_km: seg.distance_km, time_start: seg.time_start, time_end: seg.time_end, time_total: seg.time_total, speed_mean_kmh: seg.speed_mean_kmh, speed_min_kmh: seg.speed_min_kmh, speed_max_kmh: seg.speed_max_kmh, pointCount: seg.pointCount }
           }));
 
           const geojson = {
