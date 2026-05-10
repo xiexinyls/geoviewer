@@ -960,7 +960,7 @@
         function exportTrajectory() {
           if (trajectoryData.coordinates.length === 0) return;
 
-          const roundCoord = n => +n.toFixed(5);
+          const roundCoord = n => +n.toFixed(6);
           const round2 = n => n != null ? +n.toFixed(2) : null;
 
           const pointFeatures = trajectoryData.coordinates.map(c => ({
