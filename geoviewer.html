@@ -960,16 +960,18 @@
         function exportTrajectory() {
           if (trajectoryData.coordinates.length === 0) return;
 
+          const roundCoord = n => +n.toFixed(5);
+
           const pointFeatures = trajectoryData.coordinates.map(c => ({
             type: 'Feature',
-            geometry: { type: 'Point', coordinates: [c.lon, c.lat] },
+            geometry: { type: 'Point', coordinates: [roundCoord(c.lon), roundCoord(c.lat)] },
             properties: { timestamp: c.timestamp, heading: c.heading, accuracy: c.accuracy }
           }));
 
           const segments = buildSegments(trajectoryData.coordinates);
           const lineFeatures = segments.map(seg => ({
             type: 'Feature',
-            geometry: { type: 'LineString', coordinates: seg.points.map(p => [p.lon, p.lat]) },
+            geometry: { type: 'LineString', coordinates: seg.points.map(p => [roundCoord(p.lon), roundCoord(p.lat)]) },
             properties: { segment_index: seg.segment_index, distance_km: seg.distance_km, time_start: seg.time_start, time_end: seg.time_end, time_total: seg.time_total, speed_mean_kmh: seg.speed_mean_kmh, speed_min_kmh: seg.speed_min_kmh, speed_max_kmh: seg.speed_max_kmh, pointCount: seg.pointCount }
           }));
 
