@@ -937,7 +937,8 @@
               speed_mean: timeTotalSec > 0 ? Math.round((totalDist / (timeTotalSec / 3600)) * 100) / 100 : null,
               speed_min: speeds.length > 0 ? Math.round(Math.min(...speeds) * 100) / 100 : null,
               speed_max: speeds.length > 0 ? Math.round(Math.max(...speeds) * 100) / 100 : null,
-              pointCount: points.length
+              pointCount: points.length,
+              points: points
             };
           });
         }
