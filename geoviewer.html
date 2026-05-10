@@ -926,8 +926,16 @@
             const timeTotalStr = String(Math.floor(timeTotalSec / 3600)).padStart(2, '0') + ':' + String(Math.floor((timeTotalSec % 3600) / 60)).padStart(2, '0') + ':' + String(Math.floor(timeTotalSec % 60)).padStart(2, '0');
             const fmt = ts => {
               const d = new Date(ts);
+              const pad = n => String(n).padStart(2, '0');
               const offset = d.toLocaleString('en', { timeZoneName: 'short', hour12: false }).split(' ').pop();
-              return d.toLocaleString('sv', { hour12: false, fractionalSecondDigits: 3 }) + ' ' + offset;
+              const yyyy = d.getFullYear();
+              const MM = pad(d.getMonth() + 1);
+              const dd = pad(d.getDate());
+              const hh = pad(d.getHours());
+              const mm = pad(d.getMinutes());
+              const ss = pad(d.getSeconds());
+              const ms = String(d.getMilliseconds()).padStart(3, '0');
+              return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}.${ms} ${offset}`;
             };
             return {
               segment_index: idx,
@@ -970,7 +978,8 @@
             features: [...pointFeatures, ...lineFeatures]
           };
 
-          const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/json' });
+          const compact = '{"type":"FeatureCollection","features":[' + geojson.features.map(f => JSON.stringify(f)).join(',\n') + ']}';
+          const blob = new Blob([compact], { type: 'application/json' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
