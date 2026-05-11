@@ -966,7 +966,7 @@
           const pointFeatures = trajectoryData.coordinates.map(c => ({
             type: 'Feature',
             geometry: { type: 'Point', coordinates: [roundCoord(c.lon), roundCoord(c.lat)] },
-            properties: { timestamp: c.timestamp, heading: round2(c.heading), accuracy: round2(c.accuracy) }
+            properties: { timestamp: c.timestamp, accuracy: round2(c.accuracy) }
           }));
 
           const segments = buildSegments(trajectoryData.coordinates);
