@@ -409,7 +409,7 @@
       background: #ffffff;
       border-radius: 8px;
       padding: 16px;
-      max-width: 320px;
+      max-width: 400px;
       width: 90%;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       border: 1px solid rgba(0, 0, 0, 0.12);
@@ -425,7 +425,7 @@
     .color-picker-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
+      gap: 8px;
     }
 
     .color-option {
@@ -444,6 +444,15 @@
     .color-option.selected {
       border-color: #111;
       transform: scale(1.1);
+    }
+
+    .color-option-label {
+      display: block;
+      font-size: 15px;
+      font-family: monospace;
+      margin-top: 2px;
+      color: #555;
+      text-align: center;
     }
 
     .feature-popup {
@@ -1036,15 +1045,27 @@
     let currentLayerIndex = 0;
     const colorPalette = [
       '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-      '#0ea5e9', '#f472b6', '#14b8a6', '#fcd34d', '#a855f7',
-      '#6366f1', '#06b6d4', '#84cc16', '#f97316', '#ec4899',
-      '#8b5a2b', '#64748b', '#059669', '#dc2626', '#7c3aed',
-      '#0891b2', '#ea580c', '#be123c', '#4f46e5', '#0d9488'
+      '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#6366f1',
+      '#14b8a6', '#f472b6', '#22c55e', '#eab308', '#dc2626',
+      '#a855f7', '#0ea5e9', '#65a30d', '#ea580c', '#db2777',
+      '#7c3aed', '#0891b2', '#ca8a04', '#e11d48', '#4f46e5',
+      '#0d9488', '#f43f5e', '#0284c7', '#d97706', '#9333ea',
+      '#059669', '#be123c', '#4338ca', '#c084fc', '#fb7185',
+      '#fbbf24', '#34d399', '#818cf8', '#22d3ee', '#f87171',
+      '#a78bfa', '#2dd4bf', '#facc15', '#4ade80', '#0f766e'
     ];
     const activeLayers = [];
     let totalFeatures = 0;
 
     let isResizing = false;
+
+    const CSS_COLORS = new Set(['black','silver','gray','grey','maroon','red','purple','fuchsia','green','lime','olive','yellow','navy','blue','teal','aqua','orange','pink','brown','coral','crimson','darkred','gold','hotpink','indianred','ivory','khaki','lavender','lightblue','lightcoral','lightcyan','lightgray','lightgreen','lightgrey','lightpink','lightsalmon','lightseagreen','lightskyblue','lightslategray','lightsteelblue','lightyellow','limegreen','mediumblue','mediumorchid','mediumpurple','mediumseagreen','mediumslateblue','mediumspringgreen','mediumturquoise','mediumvioletred','midnightblue','mistyrose','moccasin','navajowhite','oldlace','olivedrab','orangered','orchid','palegoldenrod','palegreen','paleturquoise','palevioletred','papayawhip','peachpuff','peru','plum','powderblue','rosybrown','royalblue','saddlebrown','salmon','sandybrown','seagreen','seashell','sienna','skyblue','slateblue','slategray','snow','springgreen','steelblue','tan','thistle','tomato','turquoise','violet','wheat','whitesmoke','yellowgreen','rebeccapurple','aliceblue','antiquewhite','azure','beige','bisque','blanchedalmond','blueviolet','burlywood','cadetblue','chartreuse','chocolate','cornflowerblue','cornsilk','darkblue','darkcyan','darkgoldenrod','darkgray','darkgreen','darkgrey','darkkhaki','darkmagenta','darkolivegreen','darkorange','darkorchid','darksalmon','darkseagreen','darkslateblue','darkslategray','darkslategrey','darkturquoise','darkviolet','deeppink','deepskyblue','dimgray','dimgrey','dodgerblue','firebrick','floralwhite','forestgreen','gainsboro','ghostwhite','goldenrod','greenyellow','honeydew','indigo','jasmine','junglegreen','lavenderblush','lawngreen','lemonchiffon','lightgoldenrod','lightgoldenrodyellow']);
+
+    function isValidColor(color) {
+      if (!color) return false;
+      if (/^#[0-9a-fA-F]{6}$/.test(color)) return true;
+      return CSS_COLORS.has(color.toLowerCase());
+    }
 
     resizer.addEventListener('mousedown', event => {
       isResizing = true;
@@ -1247,15 +1268,17 @@ activeLayers.forEach(layer => {
       const svg = swatch.querySelector('svg');
       if (svg) {
         const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
+        const safeColor = isValidColor(newColor) ? newColor : '#888888';
         if (geometryType === 'Point' || geometryType === 'MultiPoint') {
-          swatch.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="' + newColor + '" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="6"/></svg>';
+          svg.setAttribute('fill', safeColor);
         } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
-          swatch.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + newColor + '" stroke-width="3" stroke-linecap="round"><path d="M4 18L10 12L14 16L20 8"/></svg>';
+          svg.setAttribute('stroke', safeColor);
         } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
-          swatch.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="' + newColor + '" fill-opacity="0.4" stroke="' + newColor + '" stroke-width="2"><polygon points="12,3 20,9 17,20 7,20 4,9"/></svg>';
+          svg.setAttribute('fill', safeColor);
+          svg.setAttribute('stroke', safeColor);
         }
       } else {
-        swatch.style.backgroundColor = newColor;
+        swatch.style.backgroundColor = isValidColor(newColor) ? newColor : '#888888';
       }
     }
 
@@ -1263,6 +1286,7 @@ activeLayers.forEach(layer => {
       const existingPicker = document.querySelector('.color-picker-modal');
       if (existingPicker) existingPicker.remove();
 
+      const safeCurrentColor = isValidColor(currentColor) ? currentColor : colorPalette[0];
       const modal = document.createElement('div');
       modal.className = 'color-picker-modal';
 
@@ -1282,13 +1306,22 @@ activeLayers.forEach(layer => {
 
       colorPalette.forEach(color => {
         const colorBtn = document.createElement('button');
-        colorBtn.className = `color-option ${color === currentColor ? 'selected' : ''}`;
+        colorBtn.className = `color-option ${color === safeCurrentColor ? 'selected' : ''}`;
         colorBtn.style.backgroundColor = color;
         colorBtn.addEventListener('click', () => {
           updateLayerColor(layerId, color);
           modal.remove();
         });
-        grid.appendChild(colorBtn);
+
+        const colorLabel = document.createElement('span');
+        colorLabel.className = 'color-option-label';
+        colorLabel.textContent = color;
+
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'display: flex; flex-direction: column; align-items: center;';
+        wrapper.appendChild(colorBtn);
+        wrapper.appendChild(colorLabel);
+        grid.appendChild(wrapper);
       });
 
       content.appendChild(grid);
@@ -1364,13 +1397,50 @@ activeLayers.forEach(layer => {
       });
 
       if (geometryType === 'Point' || geometryType === 'MultiPoint') {
-        swatch.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + color + '" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="5"/></svg>';
+        swatch.innerHTML = '';
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', color);
+        svg.setAttribute('stroke', '#fff');
+        svg.setAttribute('stroke-width', '1.5');
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '12');
+        circle.setAttribute('r', '5');
+        svg.appendChild(circle);
+        swatch.appendChild(svg);
       } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
-        swatch.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="3" stroke-linecap="round"><path d="M4 18L10 12L14 16L20 8"/></svg>';
+        swatch.innerHTML = '';
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', color);
+        svg.setAttribute('stroke-width', '3');
+        svg.setAttribute('stroke-linecap', 'round');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M4 18L10 12L14 16L20 8');
+        svg.appendChild(path);
+        swatch.appendChild(svg);
       } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
-        swatch.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + color + '" fill-opacity="0.4" stroke="' + color + '" stroke-width="1.5"><polygon points="12,3 20,9 17,20 7,20 4,9"/></svg>';
+        swatch.innerHTML = '';
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', color);
+        svg.setAttribute('fill-opacity', '0.4');
+        svg.setAttribute('stroke', color);
+        svg.setAttribute('stroke-width', '1.5');
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', '12,3 20,9 17,20 7,20 4,9');
+        svg.appendChild(polygon);
+        swatch.appendChild(svg);
       } else {
-        swatch.style.backgroundColor = color;
+        swatch.style.backgroundColor = isValidColor(color) ? color : '#888888';
       }
 
       const label = document.createElement('span');
@@ -1530,7 +1600,8 @@ function toggleLayerVisibility(layerId, checkbox) {
       colorLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const colorInput = document.createElement('input');
       colorInput.type = 'color';
-      colorInput.value = layer.labelFontColor || '#111111';
+      colorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer;';
+      colorInput.value = isValidColor(layer.labelFontColor) ? layer.labelFontColor : '#111111';
       colorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer;';
       colorRow.appendChild(colorLabel);
       colorRow.appendChild(colorInput);
@@ -1543,7 +1614,7 @@ function toggleLayerVisibility(layerId, checkbox) {
       haloColorLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const haloColorInput = document.createElement('input');
       haloColorInput.type = 'color';
-      haloColorInput.value = layer.labelHaloColor || '#ffffff';
+      haloColorInput.value = isValidColor(layer.labelHaloColor) ? layer.labelHaloColor : '#ffffff';
       haloColorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer;';
       haloColorRow.appendChild(haloColorLabel);
       haloColorRow.appendChild(haloColorInput);
@@ -1811,12 +1882,18 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       // Add latitude and longitude separately
       const latDiv = document.createElement('div');
       latDiv.className = 'feature-property';
-      latDiv.innerHTML = `Latitude <strong>${lngLat.lat.toFixed(6)}</strong>`;
+      latDiv.appendChild(document.createTextNode('Latitude '));
+      const latStrong = document.createElement('strong');
+      latStrong.textContent = lngLat.lat.toFixed(6);
+      latDiv.appendChild(latStrong);
       propList.appendChild(latDiv);
 
       const lonDiv = document.createElement('div');
       lonDiv.className = 'feature-property';
-      lonDiv.innerHTML = `Longitude <strong>${lngLat.lng.toFixed(6)}</strong>`;
+      lonDiv.appendChild(document.createTextNode('Longitude '));
+      const lonStrong = document.createElement('strong');
+      lonStrong.textContent = lngLat.lng.toFixed(6);
+      lonDiv.appendChild(lonStrong);
       propList.appendChild(lonDiv);
 
       // Add other properties
@@ -1824,7 +1901,13 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
         if (properties[key] !== null && properties[key] !== undefined) {
           const propDiv = document.createElement('div');
           propDiv.className = 'feature-property';
-          propDiv.innerHTML = `${key} <strong>${properties[key]}</strong>`;
+          const keySpan = document.createElement('span');
+          keySpan.textContent = key;
+          const valueSpan = document.createElement('strong');
+          valueSpan.textContent = properties[key];
+          propDiv.appendChild(keySpan);
+          propDiv.appendChild(document.createTextNode(' '));
+          propDiv.appendChild(valueSpan);
           propList.appendChild(propDiv);
         }
       });
@@ -1961,8 +2044,9 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       const groups = groupFeaturesByGeometryType(geojson);
       const geometryTypes = Object.keys(groups);
 
-      const color = colorPalette[(currentLayerIndex) % colorPalette.length];
-      currentLayerIndex++;
+      const hasCustomColor = geojson && geojson.properties && geojson.properties.color && isValidColor(geojson.properties.color);
+      const color = hasCustomColor ? geojson.properties.color : colorPalette[(currentLayerIndex) % colorPalette.length];
+      if (!hasCustomColor) currentLayerIndex++;
 
       Object.keys(groups).forEach(geometryType => {
         const id = `layer-${currentLayerIndex++}`;
