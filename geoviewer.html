@@ -600,7 +600,6 @@
       .mapboxgl-ctrl-top-right {
         top: 52px;
       }
-    }
 
       .resizer {
         display: none;
@@ -1184,18 +1183,6 @@
       }
     }
 
-    function restoreLayers() {
-      const userLayerIds = activeLayers.flatMap(l => [l.fillLayerId, l.lineLayerId, l.pointLayerId, l.labelLayerId].filter(Boolean));
-      userLayerIds.forEach(id => {
-        if (map.getLayer(id)) map.removeLayer(id);
-      });
-activeLayers.forEach(layer => {
-        addLayerFromStored(layer);
-      });
-      updateAllLabelButtons();
-      updateAllVisibilityButtons();
-    }
-
     function updateAllVisibilityButtons() {
       activeLayers.forEach(layer => {
         const item = fileList.querySelector(`[data-layer-id="${layer.id}"]`);
@@ -1471,6 +1458,20 @@ activeLayers.forEach(layer => {
         toggleLayerLabels(id, labelBtn);
       });
 
+      const moveUpBtn = document.createElement('button');
+      moveUpBtn.className = 'remove-btn';
+      moveUpBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      moveUpBtn.type = 'button';
+      moveUpBtn.title = 'Move up';
+      moveUpBtn.addEventListener('click', () => moveLayerUp(id));
+
+      const moveDownBtn = document.createElement('button');
+      moveDownBtn.className = 'remove-btn';
+      moveDownBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      moveDownBtn.type = 'button';
+      moveDownBtn.title = 'Move down';
+      moveDownBtn.addEventListener('click', () => moveLayerDown(id));
+
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn';
       removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -1485,6 +1486,8 @@ activeLayers.forEach(layer => {
       rightGroup.appendChild(countLabel);
       rightGroup.appendChild(toggleBtn);
       rightGroup.appendChild(labelBtn);
+      rightGroup.appendChild(moveUpBtn);
+      rightGroup.appendChild(moveDownBtn);
       rightGroup.appendChild(removeBtn);
 
       const topRow = document.createElement('div');
@@ -1493,7 +1496,7 @@ activeLayers.forEach(layer => {
       topRow.appendChild(rightGroup);
 
       item.appendChild(topRow);
-      fileList.appendChild(item);
+      fileList.prepend(item);
     }
 
 function toggleLayerVisibility(layerId, checkbox) {
@@ -1839,6 +1842,70 @@ function toggleLayerVisibility(layerId, checkbox) {
       updateExportLayerSelect();
     }
 
+    function moveLayerUp(layerId) {
+      const domItem = fileList.querySelector(`[data-layer-id="${layerId}"]`);
+      if (!domItem) return;
+      const prev = domItem.previousElementSibling;
+      if (!prev) {
+        return;
+      }
+      const prevprev = domItem.previousElementSibling.previousElementSibling;
+
+      const movingLayer = activeLayers.find(l => l.id === layerId);
+      if (prevprev) {
+        const beforeLayer = activeLayers.find(l => l.id === prevprev.dataset.layerId);
+        if (!movingLayer || !beforeLayer) return;
+
+        const beforeId = getFirstSubLayerId(beforeLayer);
+
+        if (map.getLayer(movingLayer.fillLayerId)) map.moveLayer(movingLayer.fillLayerId, beforeId);
+        if (map.getLayer(movingLayer.lineLayerId)) map.moveLayer(movingLayer.lineLayerId, beforeId);
+        if (map.getLayer(movingLayer.pointLayerId)) map.moveLayer(movingLayer.pointLayerId, beforeId);
+        if (map.getLayer(movingLayer.labelLayerId)) map.moveLayer(movingLayer.labelLayerId, beforeId);
+      }
+      else {
+        if (map.getLayer(movingLayer.fillLayerId)) map.moveLayer(movingLayer.fillLayerId);
+        if (map.getLayer(movingLayer.lineLayerId)) map.moveLayer(movingLayer.lineLayerId);
+        if (map.getLayer(movingLayer.pointLayerId)) map.moveLayer(movingLayer.pointLayerId);
+        if (map.getLayer(movingLayer.labelLayerId)) map.moveLayer(movingLayer.labelLayerId);
+      }
+
+
+      fileList.insertBefore(domItem, prev);
+    }
+
+    function moveLayerDown(layerId) {
+      const domItem = fileList.querySelector(`[data-layer-id="${layerId}"]`);
+      if (!domItem) return;
+      const next = domItem.nextElementSibling;
+      if (!next) {
+        return;
+      }
+
+      const movingLayer = activeLayers.find(l => l.id === layerId);
+      const afterLayer = activeLayers.find(l => l.id === next.dataset.layerId);
+      if (!movingLayer || !afterLayer) return;
+
+      const afterId = getFirstSubLayerId(afterLayer);
+
+      if (map.getLayer(movingLayer.fillLayerId)) map.moveLayer(movingLayer.fillLayerId, afterId);
+      if (map.getLayer(movingLayer.lineLayerId)) map.moveLayer(movingLayer.lineLayerId, afterId);
+      if (map.getLayer(movingLayer.pointLayerId)) map.moveLayer(movingLayer.pointLayerId, afterId);
+      if (map.getLayer(movingLayer.labelLayerId)) map.moveLayer(movingLayer.labelLayerId, afterId);
+
+      fileList.insertBefore(next, domItem);
+    }
+
+    function getFirstSubLayerId(layer) {
+      const allLayers = map.getStyle().layers;
+      const subLayers = allLayers.filter(l => l.id.startsWith(layer.id + '-'));
+      return subLayers.length > 0 ? subLayers[0].id : null;
+    }
+
+    function getFileListOrder() {
+      return Array.from(fileList.children).map(item => item.dataset.layerId);
+    }
+
     function updateOverlay() {
       if (activeLayers.length === 0) {
         mapOverlay.textContent = 'Upload files to show shapes.';
@@ -2044,7 +2111,6 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 
       const hasCustomColor = geojson && geojson.properties && geojson.properties.color && isValidColor(geojson.properties.color);
       const color = hasCustomColor ? geojson.properties.color : colorPalette[(currentLayerIndex) % colorPalette.length];
-      if (!hasCustomColor) currentLayerIndex++;
 
       Object.keys(groups).forEach(geometryType => {
         const id = `layer-${currentLayerIndex++}`;
