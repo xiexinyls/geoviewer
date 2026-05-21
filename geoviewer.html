@@ -468,7 +468,7 @@
       padding: 12px;
       min-width: 300px;
       max-width: 500px;
-      max-height: 500px;
+      max-height: 300px;
       overflow-y: auto;
       box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158);
       color: #111;
@@ -659,6 +659,7 @@
         <div style="display: flex; gap: 6px;">
           <button id="exportGeoJSONBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">GeoJSON</button>
           <button id="exportCSVBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">CSV</button>
+          <button id="snapshotBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Snapshot</button>
         </div>
       </div>
 
@@ -2402,6 +2403,19 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 
     document.getElementById('exportGeoJSONBtn').addEventListener('click', exportToGeoJSON);
     document.getElementById('exportCSVBtn').addEventListener('click', exportToCSV);
+    document.getElementById('snapshotBtn').addEventListener('click', () => {
+      map.once('render', () => {
+        const canvas = map.getCanvas();
+        const dataURL = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        const pad = n => n.toString().padStart(2, '0');
+        const d = new Date();
+        link.download = `snapshot-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}.png`;
+        link.href = dataURL;
+        link.click();
+      });
+      map.triggerRepaint();
+    });
 
     fileButton.addEventListener('click', () => {
       fileInput.click();
