@@ -1580,7 +1580,8 @@
       }
 
       const firstColor = `rgb(${rampColors[0][0]},${rampColors[0][1]},${rampColors[0][2]})`;
-      const interpolateExpr = ['interpolate', ['linear'], ['get', propertyName], ...stops];
+      const propVal = ['to-number', ['get', propertyName], 0];
+      const interpolateExpr = ['interpolate', ['linear'], propVal, ...stops];
       return ['case',
         ['any',
           ['==', ['typeof', ['get', propertyName]], 'undefined'],
