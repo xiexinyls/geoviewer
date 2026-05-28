@@ -455,6 +455,243 @@
       text-align: center;
     }
 
+    .color-mode-section {
+      margin-bottom: 16px;
+    }
+
+    .color-mode-radios {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .color-mode-radios label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .color-mode-radios input[type="radio"] {
+      accent-color: #3d5a80;
+    }
+
+    .solid-section {
+      display: block;
+    }
+
+    .solid-section.hidden {
+      display: none;
+    }
+
+    .ramp-section {
+      display: none;
+    }
+
+    .ramp-section.active {
+      display: block;
+    }
+
+    .ramp-property-row,
+    .ramp-ramp-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .ramp-property-row label,
+    .ramp-ramp-row label {
+      font-size: 0.82rem;
+      color: #555;
+      width: 60px;
+    }
+
+    .ramp-property-row select {
+      flex: 1;
+      padding: 6px 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 8px;
+      font-size: 0.82rem;
+    }
+
+    .ramp-dropdown {
+      position: relative;
+      flex: 1;
+    }
+
+    .ramp-dropdown-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.82rem;
+      min-height: 32px;
+    }
+
+    .ramp-dropdown-trigger:hover {
+      border-color: rgba(0,0,0,0.3);
+    }
+
+    .ramp-dropdown-trigger .ramp-name {
+      flex: 1;
+    }
+
+    .ramp-dropdown-trigger .ramp-arrow {
+      font-size: 0.7rem;
+      color: #888;
+      transition: transform 0.15s;
+    }
+
+    .ramp-dropdown.open .ramp-arrow {
+      transform: rotate(180deg);
+    }
+
+    .ramp-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.15);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      z-index: 100;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+
+    .ramp-dropdown.open .ramp-dropdown-menu {
+      display: block;
+    }
+
+    .ramp-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .ramp-dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .ramp-dropdown-item:hover {
+      background: rgba(0,0,0,0.04);
+    }
+
+    .ramp-dropdown-item.selected {
+      background: rgba(61,90,128,0.08);
+    }
+
+    .ramp-dropdown-item .ramp-strip {
+      width: 60px;
+      height: 16px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .ramp-dropdown-item .ramp-item-name {
+      flex: 1;
+      /* font-family: monospace; */
+    }
+
+    .ramp-preview {
+      height: 24px;
+      border-radius: 4px;
+    }
+
+    .ramp-range-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .ramp-range-row label {
+      font-size: 0.82rem;
+      color: #555;
+      width: 40px;
+    }
+
+    .ramp-range-row input[type="number"] {
+      flex: 1;
+      padding: 6px 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      width: 80px;
+    }
+
+    .ramp-apply-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px; 
+    }
+
+    .ramp-apply-btn {
+      padding: 8px 20px;
+      background: #3d5a80;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .ramp-apply-btn:hover {
+      background: #2c4a6e;
+    }
+
+    .geo-section {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .geo-section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #555;
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+
+    .geo-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .geo-row label {
+      font-size: 0.82rem;
+      color: #555;
+      width: 80px;
+    }
+
+    .geo-row input[type="range"] {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .geo-row span {
+      font-size: 0.8rem;
+      color: #666;
+      min-width: 40px;
+      text-align: right;
+    }
+
     .feature-popup {
       position: absolute;
       z-index: 1001;
@@ -1053,6 +1290,31 @@
       '#9333EA', '#D97706', '#65A30D', '#FBBF24', '#4ADE80',
       '#111111', '#6B7280'
     ];
+
+    const COLOR_RAMPS = {
+      viridis: [[68,1,84],[72,40,120],[62,74,150],[49,104,142],[38,130,142],[31,158,137],[53,183,121],[109,205,89],[180,222,44],[253,231,37]],
+      plasma: [[13,8,135],[84,2,163],[140,15,169],[192,21,157],[235,48,130],[255,85,99],[253,134,49],[245,191,22],[220,224,35],[180,240,90]],
+      inferno: [[0,0,4],[40,11,84],[101,21,110],[159,42,99],[212,72,66],[245,125,21],[250,193,39],[252,255,164]],
+      cividis: [[0,0,32],[0,28,73],[41,54,89],[74,79,102],[110,103,114],[142,126,126],[176,148,130],[211,171,128],[246,195,120],[253,221,119]],
+      spectral: [[158,1,66],[211,0,94],[244,66,99],[253,141,89],[254,191,120],[255,227,165],[219,240,198],[161,218,150],[102,189,99],[59,134,62]],
+      rdbu: [[165,0,38],[215,48,39],[244,109,67],[253,174,97],[254,224,144],[223,242,248],[171,217,233],[116,173,209],[69,117,180],[49,54,149]],
+      rdgy: [[165,0,38],[215,48,39],[244,109,67],[253,174,97],[254,224,144],[255,255,255],[186,186,186],[135,135,135],[77,77,77],[40,40,40]],
+      piyg: [[197,27,125],[222,107,139],[241,163,172],[253,194,213],[255,228,234],[225,245,238],[166,212,192],[115,171,150],[64,128,88],[0,88,45]],
+      oranges: [[255,245,235],[254,237,222],[254,221,200],[253,201,167],[253,174,127],[253,141,89],[241,101,53],[217,72,25],[166,44,3],[127,39,4]],
+      reds: [[255,245,240],[254,232,222],[252,214,208],[252,187,180],[252,154,150],[247,113,103],[222,61,68],[197,26,53],[168,0,32],[128,0,38]],
+      purples: [[252,251,255],[239,237,245],[223,217,231],[196,186,217],[171,157,201],[142,115,179],[114,72,160],[80,36,140],[44,1,110],[21,0,65]],
+      buGn: [[247,252,253],[229,245,240],[202,234,227],[153,216,201],[102,194,164],[44,162,124],[0,109,84],[0,68,55],[0,53,36]],
+      puBu: [[255,247,251],[237,234,243],[208,209,230],[166,177,215],[128,141,195],[84,93,172],[54,43,140],[25,25,115],[2,13,69]],
+      orRd: [[255,247,236],[254,232,211],[252,215,178],[252,187,131],[251,141,89],[239,101,50],[215,61,30],[179,0,12],[127,0,0]],
+      ylGn: [[255,255,229],[247,252,185],[217,240,163],[173,221,142],[120,198,115],[65,171,93],[35,132,67],[0,109,44],[0,69,27]],
+      puRd: [[247,251,255],[224,236,244],[191,216,227],[164,186,208],[128,144,183],[94,87,152],[67,46,123],[32,14,81],[13,8,45]],
+      gnBu: [[247,252,240],[224,242,230],[183,228,214],[140,209,187],[93,185,160],[43,151,133],[8,112,108],[0,79,87],[0,52,68]],
+      set1: [[228,26,28],[55,126,184],[77,175,74],[152,78,163],[255,127,0],[255,187,119],[166,86,40],[247,147,30],[148,103,189],[140,140,140]],
+      set2: [[102,194,165],[252,141,98],[141,211,199],[231,41,138],[166,216,80],[255,217,47],[117,107,177],[166,206,227],[178,145,137],[177,177,177]],
+      set3: [[141,211,199],[188,185,26],[253,180,98],[132,186,91],[228,26,28],[158,154,200],[252,141,98],[103,80,164],[213,39,40],[40,116,166]],
+      paired: [[166,206,227],[31,120,180],[178,223,138],[51,160,44],[251,154,153],[227,26,28],[253,192,134],[255,127,0],[202,178,214],[106,61,154]]
+    };
+
     const activeLayers = [];
     let totalFeatures = 0;
 
@@ -1105,13 +1367,18 @@
         geometryTypes.add(feature.geometry.type);
       });
 
+      const fillColor = layer.useColorRamp && layer.colorRampProperty && layer.colorRamp
+        ? buildColorRampExpression(layer, layer.colorRamp, layer.colorRampProperty, layer.colorRampMin, layer.colorRampMax, layer.colorRampInvert) : layer.color;
+      const lineColor = fillColor;
+      const pointColor = fillColor;
+
       if ([...geometryTypes].some(type => ['Polygon', 'MultiPolygon'].includes(type))) {
         if (!map.getLayer(layer.fillLayerId)) {
           map.addLayer({
             id: layer.fillLayerId,
             type: 'fill',
             source: layer.sourceId,
-            paint: { 'fill-color': layer.color, 'fill-opacity': 0.2 },
+            paint: { 'fill-color': fillColor, 'fill-opacity': 0.2 },
             layout: { visibility: layer.visible !== false ? 'visible' : 'none' },
           });
           map.on('click', layer.fillLayerId, (e) => {
@@ -1129,7 +1396,7 @@
             id: layer.lineLayerId,
             type: 'line',
             source: layer.sourceId,
-            paint: { 'line-color': layer.color, 'line-width': 3 },
+            paint: { 'line-color': lineColor, 'line-width': 3 },
             layout: { visibility: layer.visible !== false ? 'visible' : 'none' },
           });
           map.on('click', layer.lineLayerId, (e) => {
@@ -1147,7 +1414,7 @@
             id: layer.pointLayerId,
             type: 'circle',
             source: layer.sourceId,
-            paint: { 'circle-radius': 6, 'circle-color': layer.color, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 },
+            paint: { 'circle-radius': 6, 'circle-color': pointColor, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5 },
             layout: { visibility: layer.visible !== false ? 'visible' : 'none' },
           });
           map.on('click', layer.pointLayerId, (e) => {
@@ -1231,6 +1498,17 @@
     function updateLayerColor(layerId, newColor) {
       const layer = activeLayers.find(l => l.id === layerId);
       if (!layer) return;
+
+      if (layer.useColorRamp && layer.colorRampProperty && layer.colorRamp) {
+        const expr = buildColorRampExpression(layer, layer.colorRamp, layer.colorRampProperty, layer.colorRampMin, layer.colorRampMax, layer.colorRampInvert);
+        if (expr) {
+          if (map.getLayer(layer.fillLayerId)) map.setPaintProperty(layer.fillLayerId, 'fill-color', expr);
+          if (map.getLayer(layer.lineLayerId)) map.setPaintProperty(layer.lineLayerId, 'line-color', expr);
+          if (map.getLayer(layer.pointLayerId)) map.setPaintProperty(layer.pointLayerId, 'circle-color', expr);
+        }
+        return;
+      }
+
       layer.color = newColor;
 
       if (map.getLayer(layer.fillLayerId)) map.setPaintProperty(layer.fillLayerId, 'fill-color', newColor);
@@ -1249,29 +1527,74 @@
 
       const item = fileList.querySelector(`[data-layer-id="${layerId}"]`);
       if (!item) return;
-      const swatch = item.querySelector('.legend-swatch');
-      if (!swatch) return;
 
-      const svg = swatch.querySelector('svg');
-      if (svg) {
-        const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
-        const safeColor = isValidColor(newColor) ? newColor : '#888888';
-        if (geometryType === 'Point' || geometryType === 'MultiPoint') {
-          svg.setAttribute('fill', safeColor);
-        } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
-          svg.setAttribute('stroke', safeColor);
-        } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
-          svg.setAttribute('fill', safeColor);
-          svg.setAttribute('stroke', safeColor);
-        }
+      if (layer.useColorRamp) {
+        updateSwatchRamp(layer);
       } else {
-        swatch.style.backgroundColor = isValidColor(newColor) ? newColor : '#888888';
+        updateSwatchSolid(layer);
       }
+    }
+
+    function computePropertyRange(features, propName) {
+      const values = [];
+      features.forEach(f => {
+        if (f && f.properties && f.properties[propName] !== undefined) {
+          const v = parseFloat(f.properties[propName]);
+          if (!Number.isNaN(v)) values.push(v);
+        }
+      });
+      if (values.length === 0) return null;
+      values.sort((a, b) => a - b);
+      const lowIdx = Math.floor(values.length * 0.05);
+      const highIdx = Math.floor(values.length * 0.95) - 1;
+      return { min: values[lowIdx], max: values[highIdx] };
+    }
+
+    function buildColorRampExpression(layer, rampName, propertyName, minOverride, maxOverride, invert) {
+      const ramp = COLOR_RAMPS[rampName];
+      if (!ramp) return null;
+
+      const features = layer.geojson.type === 'FeatureCollection' ? layer.geojson.features : [layer.geojson];
+      const range = computePropertyRange(features, propertyName);
+      if (!range) return null;
+
+      let min, max;
+      if (minOverride !== undefined && maxOverride !== undefined) {
+        min = minOverride;
+        max = maxOverride;
+      } else {
+        min = range.min;
+        max = range.max;
+      }
+      if (min === max) return null;
+
+      const rampColors = invert ? [...ramp].reverse() : ramp;
+      const stops = [];
+      for (let i = 0; i < rampColors.length; i++) {
+        const t = i / (rampColors.length - 1);
+        const v = min + t * (max - min);
+        const rgb = rampColors[i];
+        stops.push(v, `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
+      }
+
+      const firstColor = `rgb(${rampColors[0][0]},${rampColors[0][1]},${rampColors[0][2]})`;
+      const interpolateExpr = ['interpolate', ['linear'], ['get', propertyName], ...stops];
+      return ['case',
+        ['any',
+          ['==', ['typeof', ['get', propertyName]], 'undefined'],
+          ['==', ['get', propertyName], null]
+        ],
+        firstColor,
+        interpolateExpr
+      ];
     }
 
     function showColorPicker(layerId, currentColor) {
       const existingPicker = document.querySelector('.color-picker-modal');
       if (existingPicker) existingPicker.remove();
+
+      const layer = activeLayers.find(l => l.id === layerId);
+      if (!layer) return;
 
       const safeCurrentColor = isValidColor(currentColor) ? currentColor : colorPalette[0];
       const modal = document.createElement('div');
@@ -1285,18 +1608,55 @@
       content.className = 'color-picker-content';
 
       const title = document.createElement('h3');
-      title.textContent = 'Choose Layer Color';
+      title.textContent = 'Choose Layer Properties';
       content.appendChild(title);
 
+      const radiosDiv = document.createElement('div');
+      radiosDiv.className = 'color-mode-radios';
+
+      const solidRadio = document.createElement('input');
+      solidRadio.type = 'radio';
+      solidRadio.name = 'colorMode';
+      solidRadio.id = 'colorModeSolid';
+      solidRadio.checked = !layer.useColorRamp;
+
+      const solidLabel = document.createElement('label');
+      solidLabel.htmlFor = 'colorModeSolid';
+      solidLabel.textContent = 'Solid Color';
+
+      const rampRadio = document.createElement('input');
+      rampRadio.type = 'radio';
+      rampRadio.name = 'colorMode';
+      rampRadio.id = 'colorModeRamp';
+      rampRadio.checked = layer.useColorRamp;
+
+      const rampLabel = document.createElement('label');
+      rampLabel.htmlFor = 'colorModeRamp';
+      rampLabel.textContent = 'Property Color Ramp';
+
+      radiosDiv.appendChild(solidRadio);
+      radiosDiv.appendChild(solidLabel);
+      radiosDiv.appendChild(rampRadio);
+      radiosDiv.appendChild(rampLabel);
+      content.appendChild(radiosDiv);
+
+      const solidSection = document.createElement('div');
+      solidSection.className = layer.useColorRamp ? 'solid-section hidden' : 'solid-section';
       const grid = document.createElement('div');
       grid.className = 'color-picker-grid';
 
       colorPalette.forEach(color => {
         const colorBtn = document.createElement('button');
-        colorBtn.className = `color-option ${color === safeCurrentColor ? 'selected' : ''}`;
+        colorBtn.className = `color-option ${color === safeCurrentColor && !layer.useColorRamp ? 'selected' : ''}`;
         colorBtn.style.backgroundColor = color;
         colorBtn.addEventListener('click', () => {
+          layer.useColorRamp = false;
+          layer.color = color;
+          if (dotInput) layer.dotRadius = parseInt(dotInput.value, 10);
+          if (lineWidthInput) layer.lineWidth = parseFloat(lineWidthInput.value);
+          if (fillOpacityInput) layer.fillOpacity = parseFloat(fillOpacityInput.value);
           updateLayerColor(layerId, color);
+          applyGeometryStyles(layer);
           modal.remove();
         });
 
@@ -1311,10 +1671,470 @@
         grid.appendChild(wrapper);
       });
 
-      content.appendChild(grid);
+      solidSection.appendChild(grid);
+      content.appendChild(solidSection);
+
+      const rampSection = document.createElement('div');
+      rampSection.className = `ramp-section ${layer.useColorRamp ? 'active' : ''}`;
+
+      const propRow = document.createElement('div');
+      propRow.className = 'ramp-property-row';
+      const propLabel = document.createElement('label');
+      propLabel.textContent = 'Property:';
+      const propSelect = document.createElement('select');
+
+      const allProps = getLayerProperties(layer);
+      const numericProps = allProps.filter(p => {
+        const features = layer.geojson.type === 'FeatureCollection' ? layer.geojson.features : [layer.geojson];
+        for (const f of features) {
+          if (f && f.properties && f.properties[p] !== undefined && f.properties[p] !== null && f.properties[p] !== '') {
+            const v = parseFloat(f.properties[p]);
+            if (Number.isNaN(v)) return false;
+          }
+        }
+        return true;
+      });
+
+      if (numericProps.length === 0) {
+        propSelect.appendChild(document.createElement('option')).textContent = 'No numeric properties';
+      } else {
+        numericProps.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p;
+          opt.textContent = p;
+          if (layer.colorRampProperty === p) opt.selected = true;
+          propSelect.appendChild(opt);
+        });
+      }
+
+      propRow.appendChild(propLabel);
+      propRow.appendChild(propSelect);
+      rampSection.appendChild(propRow);
+
+      const rampRow = document.createElement('div');
+      rampRow.className = 'ramp-ramp-row';
+      const rampLabelEl = document.createElement('label');
+      rampLabelEl.textContent = 'Ramp:';
+
+      const rampDropdown = document.createElement('div');
+      rampDropdown.className = 'ramp-dropdown';
+
+      const rampTrigger = document.createElement('div');
+      rampTrigger.className = 'ramp-dropdown-trigger';
+
+      const selectedRampName = document.createElement('span');
+      selectedRampName.className = 'ramp-name';
+      selectedRampName.textContent = (layer.colorRamp || 'viridis').charAt(0).toUpperCase() + (layer.colorRamp || 'viridis').slice(1);
+
+      const selectedStrip = document.createElement('div');
+      selectedStrip.className = 'ramp-strip';
+      const initRamp = COLOR_RAMPS[layer.colorRamp] || COLOR_RAMPS.viridis;
+      const initColors = initRamp.map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
+      selectedStrip.style.background = `linear-gradient(to right, ${initColors.join(', ')})`;
+
+      const arrow = document.createElement('span');
+      arrow.className = 'ramp-arrow';
+      arrow.textContent = '▼';
+
+      rampTrigger.appendChild(selectedRampName);
+      rampTrigger.appendChild(selectedStrip);
+      rampTrigger.appendChild(arrow);
+
+      const rampMenu = document.createElement('div');
+      rampMenu.className = 'ramp-dropdown-menu';
+
+      Object.keys(COLOR_RAMPS).forEach(name => {
+        const item = document.createElement('div');
+        item.className = 'ramp-dropdown-item' + (layer.colorRamp === name ? ' selected' : '');
+        item.dataset.value = name;
+
+        const strip = document.createElement('div');
+        strip.className = 'ramp-strip';
+        const colors = COLOR_RAMPS[name].map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
+        strip.style.background = `linear-gradient(to right, ${colors.join(', ')})`;
+
+        const label = document.createElement('span');
+        label.className = 'ramp-item-name';
+        label.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+
+        item.appendChild(strip);
+        item.appendChild(label);
+        rampMenu.appendChild(item);
+
+        item.addEventListener('click', () => {
+          document.querySelectorAll('.ramp-dropdown-item').forEach(el => el.classList.remove('selected'));
+          item.classList.add('selected');
+          selectedRampName.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+          const rampColors = COLOR_RAMPS[name].map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
+          selectedStrip.style.background = `linear-gradient(to right, ${rampColors.join(', ')})`;
+          invertCheckbox.checked = false;
+          updatePreview();
+          rampDropdown.classList.remove('open');
+        });
+      });
+
+      rampTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.ramp-dropdown.open').forEach(d => {
+          if (d !== rampDropdown) d.classList.remove('open');
+        });
+        rampDropdown.classList.toggle('open');
+      });
+
+      document.addEventListener('click', () => {
+        rampDropdown.classList.remove('open');
+      });
+
+      rampDropdown.appendChild(rampTrigger);
+      rampDropdown.appendChild(rampMenu);
+
+      rampRow.appendChild(rampLabelEl);
+      rampRow.appendChild(rampDropdown);
+      rampSection.appendChild(rampRow);
+
+      const minRow = document.createElement('div');
+      minRow.className = 'ramp-range-row';
+      const minLabel = document.createElement('label');
+      minLabel.textContent = 'Min:';
+      const minInput = document.createElement('input');
+      minInput.type = 'number';
+      minInput.step = 'any';
+      const features = layer.geojson.type === 'FeatureCollection' ? layer.geojson.features : [layer.geojson];
+      const sampleProp = numericProps.length > 0 ? numericProps[0] : null;
+      let defaultMin = 0, defaultMax = 100;
+      if (sampleProp) {
+        const range = computePropertyRange(features, sampleProp);
+        if (range) {
+          defaultMin = range.min;
+          defaultMax = range.max;
+        }
+      }
+      minInput.value = layer.colorRampMin !== undefined ? layer.colorRampMin : defaultMin;
+
+      const maxRow = document.createElement('div');
+      maxRow.className = 'ramp-range-row';
+      const maxLabel = document.createElement('label');
+      maxLabel.textContent = 'Max:';
+      const maxInput = document.createElement('input');
+      maxInput.type = 'number';
+      maxInput.step = 'any';
+      maxInput.value = layer.colorRampMax !== undefined ? layer.colorRampMax : defaultMax;
+
+      function updateMinMaxFromProperty(propName) {
+        const range = computePropertyRange(features, propName);
+        if (!range) return;
+        if (propName === layer.colorRampProperty && layer.colorRampMin !== undefined && layer.colorRampMax !== undefined) {
+          minInput.value = layer.colorRampMin;
+          maxInput.value = layer.colorRampMax;
+        } else {
+          minInput.value = range.min;
+          maxInput.value = range.max;
+        }
+      }
+
+      if (layer.colorRampProperty && numericProps.includes(layer.colorRampProperty)) {
+        updateMinMaxFromProperty(layer.colorRampProperty);
+      } else if (numericProps.length > 0) {
+        updateMinMaxFromProperty(numericProps[0]);
+      }
+
+      propSelect.addEventListener('change', () => {
+        updateMinMaxFromProperty(propSelect.value);
+      });
+
+      minRow.appendChild(minLabel);
+      minRow.appendChild(minInput);
+      rampSection.appendChild(minRow);
+
+      maxRow.appendChild(maxLabel);
+      maxRow.appendChild(maxInput);
+      rampSection.appendChild(maxRow);
+
+      const preview = document.createElement('div');
+      preview.className = 'ramp-preview';
+      rampSection.appendChild(preview);
+
+      const invertRow = document.createElement('div');
+      invertRow.className = 'ramp-range-row';
+      const invertLabel = document.createElement('label');
+      invertLabel.textContent = 'Invert:';
+      invertLabel.style.width = '40px';
+      const invertCheckbox = document.createElement('input');
+      invertCheckbox.type = 'checkbox';
+      invertCheckbox.checked = layer.colorRampInvert || false;
+      invertRow.appendChild(invertLabel);
+      invertRow.appendChild(invertCheckbox);
+      rampSection.appendChild(invertRow);
+
+      content.appendChild(rampSection);
+
+      const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
+      const isPoint = geometryType === 'Point' || geometryType === 'MultiPoint';
+      const isLine = geometryType === 'LineString' || geometryType === 'MultiLineString';
+      const isPolygon = geometryType === 'Polygon' || geometryType === 'MultiPolygon';
+
+      const geoSection = document.createElement('div');
+      geoSection.className = 'geo-section';
+
+      const geoTitle = document.createElement('div');
+      geoTitle.className = 'geo-section-title';
+      geoTitle.textContent = 'Geometry';
+      geoSection.appendChild(geoTitle);
+
+      let dotInput = null;
+      let lineWidthInput = null;
+      let fillOpacityInput = null;
+
+      if (isPoint) {
+        dotInput = document.createElement('input');
+        dotInput.type = 'range';
+        dotInput.min = '2';
+        dotInput.max = '20';
+        dotInput.step = '1';
+        dotInput.value = layer.dotRadius || 6;
+        const dotValue = document.createElement('span');
+        dotValue.textContent = dotInput.value + 'px';
+        dotInput.addEventListener('input', () => { dotValue.textContent = dotInput.value + 'px'; });
+        const dotRow = document.createElement('div');
+        dotRow.className = 'geo-row';
+        const dotLabel = document.createElement('label');
+        dotLabel.textContent = 'Dot Size:';
+        dotRow.appendChild(dotLabel);
+        dotRow.appendChild(dotInput);
+        dotRow.appendChild(dotValue);
+        geoSection.appendChild(dotRow);
+      }
+
+      if (isLine || isPolygon) {
+        lineWidthInput = document.createElement('input');
+        lineWidthInput.type = 'range';
+        lineWidthInput.min = '1';
+        lineWidthInput.max = '12';
+        lineWidthInput.step = '0.5';
+        lineWidthInput.value = layer.lineWidth || 3;
+        const lineWidthValue = document.createElement('span');
+        lineWidthValue.textContent = lineWidthInput.value + 'px';
+        lineWidthInput.addEventListener('input', () => { lineWidthValue.textContent = lineWidthInput.value + 'px'; });
+        const lineWidthRow = document.createElement('div');
+        lineWidthRow.className = 'geo-row';
+        const lineWidthLabel = document.createElement('label');
+        lineWidthLabel.textContent = 'Stroke:';
+        lineWidthRow.appendChild(lineWidthLabel);
+        lineWidthRow.appendChild(lineWidthInput);
+        lineWidthRow.appendChild(lineWidthValue);
+        geoSection.appendChild(lineWidthRow);
+      }
+
+      if (isPolygon) {
+        fillOpacityInput = document.createElement('input');
+        fillOpacityInput.type = 'range';
+        fillOpacityInput.min = '0';
+        fillOpacityInput.max = '1';
+        fillOpacityInput.step = '0.05';
+        fillOpacityInput.value = layer.fillOpacity ?? 0.2;
+        const fillOpacityValue = document.createElement('span');
+        fillOpacityValue.textContent = Math.round(fillOpacityInput.value * 100) + '%';
+        fillOpacityInput.addEventListener('input', () => { fillOpacityValue.textContent = Math.round(fillOpacityInput.value * 100) + '%'; });
+        const fillOpacityRow = document.createElement('div');
+        fillOpacityRow.className = 'geo-row';
+        const fillOpacityLabel = document.createElement('label');
+        fillOpacityLabel.textContent = 'Fill Opacity:';
+        fillOpacityRow.appendChild(fillOpacityLabel);
+        fillOpacityRow.appendChild(fillOpacityInput);
+        fillOpacityRow.appendChild(fillOpacityValue);
+        geoSection.appendChild(fillOpacityRow);
+      }
+
+      content.appendChild(geoSection);
+
+      const applyRow = document.createElement('div');
+      applyRow.className = 'ramp-apply-row';
+      const applyBtn = document.createElement('button');
+      applyBtn.className = 'ramp-apply-btn';
+      applyBtn.textContent = 'Apply';
+      applyRow.appendChild(applyBtn);
+      content.appendChild(applyRow);
+
       modal.appendChild(overlay);
       modal.appendChild(content);
       document.body.appendChild(modal);
+
+      function getSelectedRampName() {
+        const selected = rampDropdown.querySelector('.ramp-dropdown-item.selected');
+        return selected ? selected.dataset.value : (layer.colorRamp || 'viridis');
+      }
+
+      function updatePreview() {
+        const selectedRamp = getSelectedRampName();
+        const ramp = COLOR_RAMPS[selectedRamp];
+        if (!ramp) return;
+        const rampColors = invertCheckbox.checked ? [...ramp].reverse() : ramp;
+        const colors = rampColors.map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
+        preview.style.background = `linear-gradient(to right, ${colors.join(', ')})`;
+      }
+      updatePreview();
+      invertCheckbox.addEventListener('change', updatePreview);
+
+      function doApply() {
+        if (dotInput) layer.dotRadius = parseInt(dotInput.value, 10);
+        if (lineWidthInput) layer.lineWidth = parseFloat(lineWidthInput.value);
+        if (fillOpacityInput) layer.fillOpacity = parseFloat(fillOpacityInput.value);
+        applyGeometryStyles(layer);
+        if (layer.useColorRamp) {
+          const prop = propSelect.value;
+          const rampName = getSelectedRampName();
+          if (prop && COLOR_RAMPS[rampName]) {
+            const minVal = parseFloat(minInput.value);
+            const maxVal = parseFloat(maxInput.value);
+            if (!Number.isNaN(minVal) && !Number.isNaN(maxVal)) {
+              layer.colorRampProperty = prop;
+              layer.colorRamp = rampName;
+              layer.colorRampMin = minVal;
+              layer.colorRampMax = maxVal;
+              layer.colorRampInvert = invertCheckbox.checked;
+              const expr = buildColorRampExpression(layer, rampName, prop, minVal, maxVal, invertCheckbox.checked);
+              if (expr) {
+                if (map.getLayer(layer.fillLayerId)) map.setPaintProperty(layer.fillLayerId, 'fill-color', expr);
+                if (map.getLayer(layer.lineLayerId)) map.setPaintProperty(layer.lineLayerId, 'line-color', expr);
+                if (map.getLayer(layer.pointLayerId)) map.setPaintProperty(layer.pointLayerId, 'circle-color', expr);
+              }
+              updateSwatchRamp(layer);
+            }
+          }
+        }
+        modal.remove();
+      }
+
+      function applyRamp() {
+const prop = propSelect.value;
+          const rampName = getSelectedRampName();
+        if (!prop || !COLOR_RAMPS[rampName]) return;
+
+        const minVal = parseFloat(minInput.value);
+        const maxVal = parseFloat(maxInput.value);
+        if (Number.isNaN(minVal) || Number.isNaN(maxVal)) return;
+
+        layer.useColorRamp = true;
+        layer.colorRampProperty = prop;
+        layer.colorRamp = rampName;
+        layer.colorRampMin = minVal;
+        layer.colorRampMax = maxVal;
+        layer.colorRampInvert = invertCheckbox.checked;
+
+        const expr = buildColorRampExpression(layer, rampName, prop, minVal, maxVal, invertCheckbox.checked);
+        if (!expr) return;
+
+        if (map.getLayer(layer.fillLayerId)) map.setPaintProperty(layer.fillLayerId, 'fill-color', expr);
+        if (map.getLayer(layer.lineLayerId)) map.setPaintProperty(layer.lineLayerId, 'line-color', expr);
+        if (map.getLayer(layer.pointLayerId)) map.setPaintProperty(layer.pointLayerId, 'circle-color', expr);
+
+        updateSwatchRamp(layer);
+      }
+
+      applyBtn.addEventListener('click', doApply);
+
+      solidRadio.addEventListener('change', () => {
+        solidSection.classList.remove('hidden');
+        rampSection.classList.remove('active');
+        layer.useColorRamp = false;
+        updateLayerColor(layer.id, layer.color);
+      });
+
+      rampRadio.addEventListener('change', () => {
+        solidSection.classList.add('hidden');
+        rampSection.classList.add('active');
+        layer.useColorRamp = true;
+      });
+    }
+
+    function applyGeometryStyles(layer) {
+      const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
+      const isPoint = geometryType === 'Point' || geometryType === 'MultiPoint';
+      const isLine = geometryType === 'LineString' || geometryType === 'MultiLineString';
+      const isPolygon = geometryType === 'Polygon' || geometryType === 'MultiPolygon';
+
+      if (isPoint && map.getLayer(layer.pointLayerId)) {
+        map.setPaintProperty(layer.pointLayerId, 'circle-radius', layer.dotRadius || 6);
+      }
+      if ((isLine || isPolygon) && map.getLayer(layer.lineLayerId)) {
+        map.setPaintProperty(layer.lineLayerId, 'line-width', layer.lineWidth || 3);
+      }
+      if (isPolygon && map.getLayer(layer.fillLayerId)) {
+        map.setPaintProperty(layer.fillLayerId, 'fill-opacity', layer.fillOpacity ?? 0.2);
+      }
+    }
+
+    function updateSwatchSolid(layer) {
+      const item = fileList.querySelector(`[data-layer-id="${layer.id}"]`);
+      if (!item) return;
+      const swatch = item.querySelector('.legend-swatch');
+      if (!swatch) return;
+
+      swatch.innerHTML = '';
+      swatch.style.background = 'transparent';
+      const safeColor = isValidColor(layer.color) ? layer.color : '#888888';
+      const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
+
+      if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', safeColor);
+        svg.setAttribute('stroke', '#fff');
+        svg.setAttribute('stroke-width', '1.5');
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '12');
+        circle.setAttribute('r', '5');
+        svg.appendChild(circle);
+        swatch.appendChild(svg);
+      } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', safeColor);
+        svg.setAttribute('stroke-width', '3');
+        svg.setAttribute('stroke-linecap', 'round');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M4 18L10 12L14 16L20 8');
+        svg.appendChild(path);
+        swatch.appendChild(svg);
+      } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '14');
+        svg.setAttribute('height', '14');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', safeColor);
+        svg.setAttribute('fill-opacity', '0.4');
+        svg.setAttribute('stroke', safeColor);
+        svg.setAttribute('stroke-width', '1.5');
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', '12,3 20,9 17,20 7,20 4,9');
+        svg.appendChild(polygon);
+        swatch.appendChild(svg);
+      } else {
+        swatch.style.backgroundColor = safeColor;
+      }
+    }
+
+    function updateSwatchRamp(layer) {
+      const item = fileList.querySelector(`[data-layer-id="${layer.id}"]`);
+      if (!item) return;
+      const swatch = item.querySelector('.legend-swatch');
+      if (!swatch) return;
+
+      swatch.innerHTML = '';
+      swatch.style.background = 'transparent';
+      const previewDiv = document.createElement('div');
+      previewDiv.style.cssText = 'width: 18px; height: 18px; border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15);';
+      const ramp = COLOR_RAMPS[layer.colorRamp] || COLOR_RAMPS.viridis;
+      const rampColors = layer.colorRampInvert ? [...ramp].reverse() : ramp;
+      const colors = rampColors.map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
+      previewDiv.style.background = `linear-gradient(to right, ${colors.join(', ')})`;
+      swatch.appendChild(previewDiv);
     }
 
     function startRename(label, layerId) {
@@ -1428,6 +2248,18 @@
         swatch.appendChild(svg);
       } else {
         swatch.style.backgroundColor = isValidColor(color) ? color : '#888888';
+      }
+
+      const layer = activeLayers.find(l => l.id === id);
+      if (layer && layer.useColorRamp) {
+        swatch.innerHTML = '';
+        swatch.style.background = 'transparent';
+        const previewDiv = document.createElement('div');
+        previewDiv.style.cssText = 'width: 18px; height: 18px; border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15);';
+        const ramp = COLOR_RAMPS[layer.colorRamp] || COLOR_RAMPS.viridis;
+        const colors = ramp.map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
+        previewDiv.style.background = `linear-gradient(to right, ${colors.join(', ')})`;
+        swatch.appendChild(previewDiv);
       }
 
       const label = document.createElement('span');
@@ -1646,84 +2478,6 @@ function toggleLayerVisibility(layerId, checkbox) {
       haloWidthRow.appendChild(haloWidthValue);
       form.appendChild(haloWidthRow);
 
-      const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
-      const isPoint = geometryType === 'Point' || geometryType === 'MultiPoint';
-      const isLine = geometryType === 'LineString' || geometryType === 'MultiLineString';
-      const isPolygon = geometryType === 'Polygon' || geometryType === 'MultiPolygon';
-
-      let dotInput = null;
-      let lineWidthInput = null;
-      let fillOpacityInput = null;
-
-      if (isPoint) {
-        dotInput = document.createElement('input');
-        dotInput.type = 'range';
-        dotInput.min = '2';
-        dotInput.max = '20';
-        dotInput.step = '1';
-        dotInput.value = layer.dotRadius || 6;
-        dotInput.style.cssText = 'flex: 1; cursor: pointer;';
-        const dotValue = document.createElement('span');
-        dotValue.textContent = dotInput.value + 'px';
-        dotValue.style.cssText = 'font-size: 0.8rem; color: #666; min-width: 30px;';
-        dotInput.addEventListener('input', () => { dotValue.textContent = dotInput.value + 'px'; });
-        const dotRow = document.createElement('div');
-        dotRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
-        const dotLabel = document.createElement('label');
-        dotLabel.textContent = 'Dot Size:';
-        dotLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
-        dotRow.appendChild(dotLabel);
-        dotRow.appendChild(dotInput);
-        dotRow.appendChild(dotValue);
-        form.appendChild(dotRow);
-      }
-
-      if (isLine || isPolygon) {
-        lineWidthInput = document.createElement('input');
-        lineWidthInput.type = 'range';
-        lineWidthInput.min = '1';
-        lineWidthInput.max = '12';
-        lineWidthInput.step = '0.5';
-        lineWidthInput.value = layer.lineWidth || 3;
-        lineWidthInput.style.cssText = 'flex: 1; cursor: pointer;';
-        const lineWidthValue = document.createElement('span');
-        lineWidthValue.textContent = lineWidthInput.value + 'px';
-        lineWidthValue.style.cssText = 'font-size: 0.8rem; color: #666; min-width: 30px;';
-        lineWidthInput.addEventListener('input', () => { lineWidthValue.textContent = lineWidthInput.value + 'px'; });
-        const lineWidthRow = document.createElement('div');
-        lineWidthRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
-        const lineWidthLabel = document.createElement('label');
-        lineWidthLabel.textContent = 'Stroke:';
-        lineWidthLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
-        lineWidthRow.appendChild(lineWidthLabel);
-        lineWidthRow.appendChild(lineWidthInput);
-        lineWidthRow.appendChild(lineWidthValue);
-        form.appendChild(lineWidthRow);
-      }
-
-      if (isPolygon) {
-        fillOpacityInput = document.createElement('input');
-        fillOpacityInput.type = 'range';
-        fillOpacityInput.min = '0';
-        fillOpacityInput.max = '1';
-        fillOpacityInput.step = '0.05';
-        fillOpacityInput.value = layer.fillOpacity ?? 0.2;
-        fillOpacityInput.style.cssText = 'flex: 1; cursor: pointer;';
-        const fillOpacityValue = document.createElement('span');
-        fillOpacityValue.textContent = Math.round(fillOpacityInput.value * 100) + '%';
-        fillOpacityValue.style.cssText = 'font-size: 0.8rem; color: #666; min-width: 40px;';
-        fillOpacityInput.addEventListener('input', () => { fillOpacityValue.textContent = Math.round(fillOpacityInput.value * 100) + '%'; });
-        const fillOpacityRow = document.createElement('div');
-        fillOpacityRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
-        const fillOpacityLabel = document.createElement('label');
-        fillOpacityLabel.textContent = 'Fill Opacity:';
-        fillOpacityLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
-        fillOpacityRow.appendChild(fillOpacityLabel);
-        fillOpacityRow.appendChild(fillOpacityInput);
-        fillOpacityRow.appendChild(fillOpacityValue);
-        form.appendChild(fillOpacityRow);
-      }
-
       modal.appendChild(form);
 
       const btnRow = document.createElement('div');
@@ -1742,27 +2496,6 @@ function toggleLayerVisibility(layerId, checkbox) {
         layer.labelFontColor = colorInput.value;
         layer.labelHaloColor = haloColorInput.value;
         layer.labelHaloWidth = parseFloat(haloWidthInput.value);
-
-        if (isPoint) {
-          layer.dotRadius = parseInt(dotInput.value, 10);
-          if (map.getLayer(layer.pointLayerId)) {
-            map.setPaintProperty(layer.pointLayerId, 'circle-radius', layer.dotRadius);
-          }
-        }
-
-        if (isLine || isPolygon) {
-          layer.lineWidth = parseFloat(lineWidthInput.value);
-          if (map.getLayer(layer.lineLayerId)) {
-            map.setPaintProperty(layer.lineLayerId, 'line-width', layer.lineWidth);
-          }
-        }
-
-        if (isPolygon) {
-          layer.fillOpacity = parseFloat(fillOpacityInput.value);
-          if (map.getLayer(layer.fillLayerId)) {
-            map.setPaintProperty(layer.fillLayerId, 'fill-opacity', layer.fillOpacity);
-          }
-        }
 
         if (!map.getLayer(layer.labelLayerId)) {
           alert('Label layer not found. This layer may not support labels.');
@@ -1854,6 +2587,7 @@ function toggleLayerVisibility(layerId, checkbox) {
       const prevprev = domItem.previousElementSibling.previousElementSibling;
 
       const movingLayer = activeLayers.find(l => l.id === layerId);
+      console.log( prevprev, movingLayer );
       if (prevprev) {
         const beforeLayer = activeLayers.find(l => l.id === prevprev.dataset.layerId);
         if (!movingLayer || !beforeLayer) return;
