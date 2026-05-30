@@ -7,6 +7,7 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.21.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.21.0/mapbox-gl.js"></script>
   <style>
+    /* ===== RESET & BASE ===== */
     body, html {
       margin: 0;
       height: 100%;
@@ -14,63 +15,7 @@
       background: #f8fafc;
     }
 
-    .hamburger {
-      display: none;
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      z-index: 1003;
-      width: 44px;
-      height: 44px;
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid rgba(0, 0, 0, 0.2);
-      border-radius: 6px;
-      cursor: pointer;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      padding: 0;
-    }
-
-    .hamburger span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: #3d5a80;
-      border-radius: 1px;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-
-    .hamburger.active span:nth-child(1) {
-      transform: translateY(7px) rotate(45deg);
-      background: #2c4a6e;
-    }
-
-    .hamburger.active span:nth-child(2) {
-      opacity: 0;
-    }
-
-    .hamburger.active span:nth-child(3) {
-      transform: translateY(-7px) rotate(-45deg);
-      background: #2c4a6e;
-    }
-
-    .sidebar-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      z-index: 1001;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .sidebar-backdrop.active {
-      opacity: 1;
-    }
-
+    /* ===== LAYOUT ===== */
     .app {
       display: flex;
       height: 100vh;
@@ -105,6 +50,19 @@
       background: rgba(0, 0, 0, 0.3);
     }
 
+    .map-container {
+      flex: 1;
+      position: relative;
+    }
+
+    #map {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ===== SIDEBAR HEADER ===== */
     .sidebar h1 {
       margin: 0;
       font-size: 1rem;
@@ -112,6 +70,14 @@
       color: #111;
     }
 
+    .sidebar .hint {
+      font-size: small;
+      font-family: monospace;
+      line-height: 1.5;
+      color: #555;
+    }
+
+    /* ===== SIDEBAR SECTIONS ===== */
     .sidebar .section {
       background: #fff;
       border-radius: 8px;
@@ -120,6 +86,7 @@
       border: 1px solid rgba(0, 0, 0, 0.1);
     }
 
+    /* ===== BUTTONS & INPUTS ===== */
     .sidebar button,
     .sidebar input[type="file"],
     .sidebar select {
@@ -134,7 +101,7 @@
       transition: all 0.18s ease;
     }
 
-.sidebar button {
+    .sidebar button {
       cursor: pointer;
       background: #3d5a80;
       color: #fff;
@@ -147,20 +114,13 @@
       background: #fff;
     }
 
-    .style-picker {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+    .sidebar button:not(.file-button):hover {
+      background: #2c4a6e;
+      border-color: rgba(0, 0, 0, 0.25);
+      color: #fff;
     }
 
-    .style-picker label {
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: #111;
-    }
-
+    /* ===== FILE BUTTON ===== */
     .file-button {
       background: #3d5a80;
       border-color: transparent;
@@ -181,12 +141,6 @@
       margin: 6px 0;
     }
 
-    .sidebar button:not(.file-button):hover {
-      background: #2c4a6e;
-      border-color: rgba(0, 0, 0, 0.25);
-      color: #fff;
-    }
-
     #recordTrajectoryBtn.recording {
       background: #dc2626;
     }
@@ -195,13 +149,22 @@
       background: #b91c1c;
     }
 
-    .sidebar .hint {
-      font-size: small;
-      font-family: monospace;
-      line-height: 1.5;
-      color: #555;
+    /* ===== STYLE PICKER ===== */
+    .style-picker {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
+    .style-picker label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #111;
+    }
+
+    /* ===== FILE LIST ===== */
     .sidebar .file-list {
       max-height: 260px;
       overflow-y: auto;
@@ -220,6 +183,7 @@
       margin-top: 0;
     }
 
+    /* ===== FILE ITEM ===== */
     .sidebar .file-item {
       display: flex;
       align-items: center;
@@ -263,6 +227,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
     }
 
     .sidebar .file-item .legend-swatch svg {
@@ -318,7 +283,7 @@
       cursor: pointer;
     }
 
-    .sidebar .file-item button.remove-btn:hover {
+    .sidebar .file-item button:hover {
       background: rgba(0, 0, 0, 0.08);
       border-color: rgba(0, 0, 0, 0.25);
       color: #000;
@@ -328,12 +293,8 @@
 
     .sidebar .file-item button.toggle-btn {
       color: #333;
-    }
-
-    .sidebar .file-item button.toggle-btn:hover {
-      background: rgba(0, 0, 0, 0.08);
-      border-color: rgba(0, 0, 0, 0.25);
-      color: #000;
+      background: transparent;
+      border: none;
     }
 
     .sidebar .file-item button.toggle-btn.hidden {
@@ -349,19 +310,25 @@
       accent-color: #111;
     }
 
-    .map-container {
-      flex: 1;
-      position: relative;
+    .sidebar .file-item button.remove-btn {
+      width: 28px;
+      min-width: 28px;
+      height: 28px;
+      padding: 0;
+      font-size: 0.78rem;
+      color: #555;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      cursor: pointer;
     }
 
-    #map {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-.map-overlay {
+    /* ===== MAP OVERLAYS ===== */
+    .map-overlay {
       position: absolute;
       top: 8px;
       right: 4px;
@@ -382,6 +349,7 @@
       top: 38px;
     }
 
+    /* ===== COLOR PICKER MODAL ===== */
     .color-picker-modal {
       position: fixed;
       top: 0;
@@ -454,6 +422,7 @@
       text-align: center;
     }
 
+    /* ===== COLOR MODE RADIOS ===== */
     .color-mode-section {
       margin-bottom: 16px;
     }
@@ -485,6 +454,7 @@
       display: none;
     }
 
+    /* ===== COLOR RAMP SECTION ===== */
     .ramp-section {
       display: none;
     }
@@ -505,7 +475,7 @@
     .ramp-ramp-row label {
       font-size: 0.82rem;
       color: #555;
-      width: 60px;
+      width: 80px;
     }
 
     .ramp-property-row select {
@@ -619,7 +589,7 @@
     .ramp-range-row label {
       font-size: 0.82rem;
       color: #555;
-      width: 40px;
+      width: 80px;
     }
 
     .ramp-range-row input[type="number"] {
@@ -634,7 +604,7 @@
     .ramp-apply-row {
       display: flex;
       justify-content: flex-end;
-      margin-top: 12px; 
+      margin-top: 12px;
     }
 
     .ramp-apply-btn {
@@ -651,6 +621,7 @@
       background: #2c4a6e;
     }
 
+    /* ===== GEOMETRY SECTION ===== */
     .geo-section {
       margin-top: 16px;
       padding-top: 12px;
@@ -690,6 +661,7 @@
       text-align: right;
     }
 
+    /* ===== FEATURE POPUP ===== */
     .feature-popup {
       position: absolute;
       z-index: 1001;
@@ -759,8 +731,9 @@
     .feature-popup-close:hover {
       background: rgba(0, 0, 0, 0.06);
       color: #000;
-}
+    }
 
+    /* ===== CONTEXT MENU ===== */
     .context-menu {
       position: fixed;
       z-index: 1002;
@@ -784,6 +757,65 @@
       background: rgba(0, 0, 0, 0.06);
     }
 
+    /* ===== HAMBURGER & BACKDROP ===== */
+    .hamburger {
+      display: none;
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 1003;
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+      cursor: pointer;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      padding: 0;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #3d5a80;
+      border-radius: 1px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+      background: #2c4a6e;
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+      background: #2c4a6e;
+    }
+
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1001;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar-backdrop.active {
+      opacity: 1;
+    }
+
+    /* ===== RESPONSIVE / MOBILE ===== */
     @media (max-width: 768px) {
       .hamburger {
         display: flex;
@@ -882,7 +914,7 @@
         </select>
       </div>
 
-      <button id="fileButton" type="button" class="file-button file-button-top"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Choose Files</button>
+      <button id="fileButton" type="button" class="file-button file-button-top"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Add Layers...</button>
       <input id="fileInput" type="file" accept=".csv,.geojson,.json" multiple style="display: none;" />
       <button id="removeAllBtn" type="button" class="file-button" style="margin-top: 6px; font-size: 0.78rem;">Remove All Layers</button>
       <div class="file-list" id="fileList"></div>
@@ -904,7 +936,7 @@
         <div style="display: flex; gap: 6px;">
           <button id="recordTrajectoryBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Record</button>
           <button id="clearTrajectoryBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Clear</button>
-          <button id="exportTrajectoryBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Export</button>
+          <button id="exportTrajectoryBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Export...</button>
         </div>
       </div>
     </aside>
@@ -992,6 +1024,58 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeSidebar();
     });
+
+    // ===== ICONS & GEOMETRY BUILDERS =====
+    const ICONS = {
+      trash: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      arrowUp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      arrowDown: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      label: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7V4h16v3M9 20h6M12 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    };
+
+    function createGeometryIcon(geometryType, color) {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '14');
+      svg.setAttribute('height', '14');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      if (geometryType === 'Point' || geometryType === 'MultiPoint') {
+        svg.setAttribute('fill', color);
+        svg.setAttribute('stroke', '#fff');
+        svg.setAttribute('stroke-width', '1.5');
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '12');
+        circle.setAttribute('r', '5');
+        svg.appendChild(circle);
+      } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', color);
+        svg.setAttribute('stroke-width', '3');
+        svg.setAttribute('stroke-linecap', 'round');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M4 18L10 12L14 16L20 8');
+        svg.appendChild(path);
+      } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
+        svg.setAttribute('fill', color);
+        svg.setAttribute('fill-opacity', '0.4');
+        svg.setAttribute('stroke', color);
+        svg.setAttribute('stroke-width', '1.5');
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', '12,3 20,9 17,20 7,20 4,9');
+        svg.appendChild(polygon);
+      }
+      return svg;
+    }
+
+    function createRampPreview(rampName, invert) {
+      const ramp = COLOR_RAMPS[rampName] || COLOR_RAMPS.viridis;
+      const rampColors = invert ? [...ramp].reverse() : ramp;
+      const colors = rampColors.map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
+      const previewDiv = document.createElement('div');
+      previewDiv.style.cssText = 'width: 18px; height: 18px; border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15);';
+      previewDiv.style.background = `linear-gradient(to right, ${colors.join(', ')})`;
+      return previewDiv;
+    }
 
     let map = null;
     if (currentToken) {
@@ -1294,8 +1378,8 @@
       plasma: [[13,8,135],[84,2,163],[140,15,169],[192,21,157],[235,48,130],[255,85,99],[253,134,49],[245,191,22],[220,224,35],[180,240,90]],
       inferno: [[0,0,4],[40,11,84],[101,21,110],[159,42,99],[212,72,66],[245,125,21],[250,193,39],[252,255,164]],
       spectral: [[59,134,62],[102,189,99],[161,218,150],[219,240,198],[254,191,120],[253,141,89],[244,66,99],[211,0,94],[158,1,66]],
-      rdbu: [[49,54,149],[69,117,180],[116,173,209],[171,217,233],[223,242,248],[254,224,144],[253,174,97],[244,109,67],[215,48,39],[165,0,38]],
-      rdgy: [[40,40,40],[77,77,77],[135,135,135],[186,186,186],[255,255,255],[254,224,144],[253,174,97],[244,109,67],[215,48,39],[165,0,38]],
+      burd: [[49,54,149],[69,117,180],[116,173,209],[171,217,233],[223,242,248],[254,224,144],[253,174,97],[244,109,67],[215,48,39],[165,0,38]],
+      gyrd: [[40,40,40],[77,77,77],[135,135,135],[186,186,186],[255,255,255],[254,224,144],[253,174,97],[244,109,67],[215,48,39],[165,0,38]],
       piyg: [[0,88,45],[64,128,88],[115,171,150],[166,212,192],[225,245,238],[255,228,234],[253,194,213],[241,163,172],[222,107,139],[197,27,125]],
       cividis: [[0,0,32],[0,28,73],[41,54,89],[74,79,102],[110,103,114],[142,126,126],[176,148,130],[211,171,128],[246,195,120],[253,221,119]],
       oranges: [[255,245,235],[254,237,222],[254,221,200],[253,201,167],[253,174,127],[253,141,89],[241,101,53],[217,72,25],[166,44,3],[127,39,4]],
@@ -1607,6 +1691,14 @@
       title.textContent = 'Choose Layer Properties';
       content.appendChild(title);
 
+      const colorTitleSection = document.createElement('div');
+      colorTitleSection.className = 'geo-section';
+      const colorTitle = document.createElement('div');
+      colorTitle.className = 'geo-section-title';
+      colorTitle.textContent = 'Color';
+      colorTitleSection.appendChild(colorTitle);
+      content.appendChild(colorTitleSection);
+
       const radiosDiv = document.createElement('div');
       radiosDiv.className = 'color-mode-radios';
 
@@ -1668,6 +1760,7 @@
       });
 
       solidSection.appendChild(grid);
+
       content.appendChild(solidSection);
 
       const rampSection = document.createElement('div');
@@ -1710,7 +1803,7 @@
       const rampRow = document.createElement('div');
       rampRow.className = 'ramp-ramp-row';
       const rampLabelEl = document.createElement('label');
-      rampLabelEl.textContent = 'Ramp:';
+      rampLabelEl.textContent = 'Color Ramp:';
 
       const rampDropdown = document.createElement('div');
       rampDropdown.className = 'ramp-dropdown';
@@ -1791,7 +1884,7 @@
       const minRow = document.createElement('div');
       minRow.className = 'ramp-range-row';
       const minLabel = document.createElement('label');
-      minLabel.textContent = 'Min:';
+      minLabel.textContent = 'Value Min:';
       const minInput = document.createElement('input');
       minInput.type = 'number';
       minInput.step = 'any';
@@ -1810,7 +1903,7 @@
       const maxRow = document.createElement('div');
       maxRow.className = 'ramp-range-row';
       const maxLabel = document.createElement('label');
-      maxLabel.textContent = 'Max:';
+      maxLabel.textContent = 'Value Max:';
       const maxInput = document.createElement('input');
       maxInput.type = 'number';
       maxInput.step = 'any';
@@ -2070,50 +2163,7 @@ const prop = propSelect.value;
       swatch.style.background = 'transparent';
       const safeColor = isValidColor(layer.color) ? layer.color : '#888888';
       const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
-
-      if (geometryType === 'Point' || geometryType === 'MultiPoint') {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '14');
-        svg.setAttribute('height', '14');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', safeColor);
-        svg.setAttribute('stroke', '#fff');
-        svg.setAttribute('stroke-width', '1.5');
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', '12');
-        circle.setAttribute('cy', '12');
-        circle.setAttribute('r', '5');
-        svg.appendChild(circle);
-        swatch.appendChild(svg);
-      } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '14');
-        svg.setAttribute('height', '14');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke', safeColor);
-        svg.setAttribute('stroke-width', '3');
-        svg.setAttribute('stroke-linecap', 'round');
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M4 18L10 12L14 16L20 8');
-        svg.appendChild(path);
-        swatch.appendChild(svg);
-      } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '14');
-        svg.setAttribute('height', '14');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', safeColor);
-        svg.setAttribute('fill-opacity', '0.4');
-        svg.setAttribute('stroke', safeColor);
-        svg.setAttribute('stroke-width', '1.5');
-        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        polygon.setAttribute('points', '12,3 20,9 17,20 7,20 4,9');
-        svg.appendChild(polygon);
-        swatch.appendChild(svg);
-      } else {
-        swatch.style.backgroundColor = safeColor;
-      }
+      swatch.appendChild(createGeometryIcon(geometryType, safeColor));
     }
 
     function updateSwatchRamp(layer) {
@@ -2121,16 +2171,9 @@ const prop = propSelect.value;
       if (!item) return;
       const swatch = item.querySelector('.legend-swatch');
       if (!swatch) return;
-
       swatch.innerHTML = '';
       swatch.style.background = 'transparent';
-      const previewDiv = document.createElement('div');
-      previewDiv.style.cssText = 'width: 18px; height: 18px; border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15);';
-      const ramp = COLOR_RAMPS[layer.colorRamp] || COLOR_RAMPS.viridis;
-      const rampColors = layer.colorRampInvert ? [...ramp].reverse() : ramp;
-      const colors = rampColors.map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
-      previewDiv.style.background = `linear-gradient(to right, ${colors.join(', ')})`;
-      swatch.appendChild(previewDiv);
+      swatch.appendChild(createRampPreview(layer.colorRamp, layer.colorRampInvert));
     }
 
     function startRename(label, layerId) {
@@ -2199,63 +2242,13 @@ const prop = propSelect.value;
         showColorPicker(id, layer ? layer.color : color);
       });
 
-      if (geometryType === 'Point' || geometryType === 'MultiPoint') {
-        swatch.innerHTML = '';
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '14');
-        svg.setAttribute('height', '14');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', color);
-        svg.setAttribute('stroke', '#fff');
-        svg.setAttribute('stroke-width', '1.5');
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', '12');
-        circle.setAttribute('cy', '12');
-        circle.setAttribute('r', '5');
-        svg.appendChild(circle);
-        swatch.appendChild(svg);
-      } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
-        swatch.innerHTML = '';
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '14');
-        svg.setAttribute('height', '14');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke', color);
-        svg.setAttribute('stroke-width', '3');
-        svg.setAttribute('stroke-linecap', 'round');
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M4 18L10 12L14 16L20 8');
-        svg.appendChild(path);
-        swatch.appendChild(svg);
-      } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
-        swatch.innerHTML = '';
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '14');
-        svg.setAttribute('height', '14');
-        svg.setAttribute('viewBox', '0 0 24 24');
-        svg.setAttribute('fill', color);
-        svg.setAttribute('fill-opacity', '0.4');
-        svg.setAttribute('stroke', color);
-        svg.setAttribute('stroke-width', '1.5');
-        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        polygon.setAttribute('points', '12,3 20,9 17,20 7,20 4,9');
-        svg.appendChild(polygon);
-        swatch.appendChild(svg);
-      } else {
-        swatch.style.backgroundColor = isValidColor(color) ? color : '#888888';
-      }
-
       const layer = activeLayers.find(l => l.id === id);
       if (layer && layer.useColorRamp) {
         swatch.innerHTML = '';
         swatch.style.background = 'transparent';
-        const previewDiv = document.createElement('div');
-        previewDiv.style.cssText = 'width: 18px; height: 18px; border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15);';
-        const ramp = COLOR_RAMPS[layer.colorRamp] || COLOR_RAMPS.viridis;
-        const colors = ramp.map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
-        previewDiv.style.background = `linear-gradient(to right, ${colors.join(', ')})`;
-        swatch.appendChild(previewDiv);
+        swatch.appendChild(createRampPreview(layer.colorRamp, layer.colorRampInvert));
+      } else {
+        swatch.appendChild(createGeometryIcon(geometryType, color));
       }
 
       const label = document.createElement('span');
@@ -2279,7 +2272,7 @@ const prop = propSelect.value;
 
       const labelBtn = document.createElement('button');
       labelBtn.className = 'remove-btn label-btn';
-      labelBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7V4h16v3M9 20h6M12 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      labelBtn.innerHTML = ICONS.label;
       labelBtn.type = 'button';
       labelBtn.title = 'Toggle labels';
       labelBtn.style.background = 'rgba(0,0,0,0.1)';
@@ -2290,21 +2283,21 @@ const prop = propSelect.value;
 
       const moveUpBtn = document.createElement('button');
       moveUpBtn.className = 'remove-btn';
-      moveUpBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      moveUpBtn.innerHTML = ICONS.arrowUp;
       moveUpBtn.type = 'button';
       moveUpBtn.title = 'Move up';
       moveUpBtn.addEventListener('click', () => moveLayerUp(id));
 
       const moveDownBtn = document.createElement('button');
       moveDownBtn.className = 'remove-btn';
-      moveDownBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      moveDownBtn.innerHTML = ICONS.arrowDown;
       moveDownBtn.type = 'button';
       moveDownBtn.title = 'Move down';
       moveDownBtn.addEventListener('click', () => moveLayerDown(id));
 
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn';
-      removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      removeBtn.innerHTML = ICONS.trash;;
       removeBtn.type = 'button';
       removeBtn.title = 'Remove layer';
       removeBtn.addEventListener('click', () => removeLayer(id));
@@ -2408,7 +2401,7 @@ function toggleLayerVisibility(layerId, checkbox) {
       const sizeRow = document.createElement('div');
       sizeRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
       const sizeLabel = document.createElement('label');
-      sizeLabel.textContent = 'Size:';
+      sizeLabel.textContent = 'Text Size:';
       sizeLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const sizeSelect = document.createElement('select');
       sizeSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.85rem;';
@@ -2427,7 +2420,7 @@ function toggleLayerVisibility(layerId, checkbox) {
       const colorRow = document.createElement('div');
       colorRow.style.cssText = 'display: flex; align-items: center; gap: 8px;';
       const colorLabel = document.createElement('label');
-      colorLabel.textContent = 'Color:';
+      colorLabel.textContent = 'Text Color:';
       colorLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const colorInput = document.createElement('input');
       colorInput.type = 'color';
