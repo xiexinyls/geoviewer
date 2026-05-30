@@ -659,6 +659,11 @@
       cursor: pointer;
     }
 
+    .geo-row input[type="range"]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .geo-row span {
       font-size: 0.8rem;
       color: #666;
@@ -919,6 +924,15 @@
         </select>
       </div>
 
+      <div class="section" style="margin-top: 8px;">
+        <div class="geo-row">
+          <input type="checkbox" id="terrainToggle" style="width: 16px; height: 16px; cursor: pointer; accent-color: #3d5a80;" />
+          <label for="terrainToggle" style="font-size: 0.78rem; color: #111; cursor: pointer; width: 80px;">3D Terrain</label>
+          <input type="range" id="terrainSlider" disabled min="1" max="5" step="0.5" value="1.5" style="flex: 1; cursor: pointer;" />
+          <span id="terrainValue" style="font-size: 0.75rem; color: #555; min-width: 30px; text-align: right;">1.5x</span>
+        </div>
+      </div>
+
       <button id="fileButton" type="button" class="file-button file-button-top"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Add Layers...</button>
       <input id="fileInput" type="file" accept=".csv,.geojson,.json" multiple style="display: none;" />
       <button id="removeAllBtn" type="button" class="file-button" style="margin-top: 6px; font-size: 0.78rem;">Remove All Layers</button>
@@ -1052,6 +1066,41 @@
       previewDiv.style.cssText = 'width: 18px; height: 18px; border-radius: 3px; overflow: hidden;';
       previewDiv.style.background = `linear-gradient(to right, ${colors.join(', ')})`;
       return previewDiv;
+    }
+
+    let terrainEnabled = false;
+    let terrainExaggeration = 1.5;
+
+    function applyTerrain() {
+      if (!map || !map.isStyleLoaded()) return;
+      if (terrainEnabled) {
+        if (!map.getSource('dem')) {
+          map.addSource('dem', { type: 'raster-dem', url: 'mapbox://mapbox.mapbox-terrain-dem-v1' });
+        }
+        map.setTerrain({ source: 'dem', exaggeration: terrainExaggeration });
+      } else {
+        map.setTerrain(null);
+      }
+    }
+
+    function initTerrainControls() {
+      const terrainToggle = document.getElementById('terrainToggle');
+      const terrainSlider = document.getElementById('terrainSlider');
+      const terrainValue = document.getElementById('terrainValue');
+
+      terrainToggle.addEventListener('change', () => {
+        terrainEnabled = terrainToggle.checked;
+        terrainSlider.disabled = !terrainEnabled;
+        applyTerrain();
+      });
+
+      terrainSlider.addEventListener('input', () => {
+        terrainExaggeration = parseFloat(terrainSlider.value);
+        terrainValue.textContent = terrainExaggeration.toFixed(1) + 'x';
+        if (terrainEnabled && map && map.isStyleLoaded()) {
+          map.setTerrain({ source: 'dem', exaggeration: terrainExaggeration });
+        }
+      });
     }
 
     let map = null;
@@ -1329,6 +1378,7 @@
     }
 
     initTokenInput();
+    initTerrainControls();
   </script>
   <script>
     const fileInput = document.getElementById('fileInput');
@@ -1534,6 +1584,10 @@
     }
 
     mapStyleSelect.addEventListener('change', event => {
+      terrainEnabled = false;
+      document.getElementById('terrainToggle').checked = false;
+      document.getElementById('terrainSlider').disabled = true;
+
       const userLayerIds = activeLayers.flatMap(l => [l.fillLayerId, l.lineLayerId, l.pointLayerId, l.labelLayerId].filter(Boolean));
       userLayerIds.forEach(id => {
         if (map.getLayer(id)) map.removeLayer(id);
@@ -1548,6 +1602,7 @@
         });
         updateAllLabelButtons();
         updateAllVisibilityButtons();
+        applyTerrain();
       });
     });
 
