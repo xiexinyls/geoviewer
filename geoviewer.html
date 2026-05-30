@@ -236,12 +236,15 @@
     }
 
     .sidebar .file-item .legend-text {
-      font-size: 0.82rem;
+      font-size: 0.75rem;
       color: #111;
-      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      gap: 2px;
+      min-width: 0;
       overflow: hidden;
-      text-overflow: ellipsis;
-      cursor: text;
+      flex-shrink: 1;
     }
 
     .sidebar .file-item .legend-text:hover {
@@ -249,15 +252,17 @@
       border-radius: 3px;
     }
 
-    .sidebar .file-item .legend-text-input {
-      border: none;
-      background: transparent;
-      font-size: 0.82rem;
-      color: #111;
-      outline: none;
-      width: 100%;
-      padding: 0;
-      cursor: text;
+    .sidebar .file-item .legend-primary {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.75rem;
+    }
+
+    .sidebar .file-item .legend-secondary {
+      font-size: 0.65rem;
+      font-family: monospace;
+      color: #555;
     }
 
     .sidebar .file-item .legend-count {
@@ -927,7 +932,7 @@
         <div style="display: flex; gap: 6px;">
           <button id="exportGeoJSONBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">GeoJSON</button>
           <button id="exportCSVBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">CSV</button>
-          <button id="snapshotBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Snapshot</button>
+          <button id="snapshotBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Snapshot...</button>
         </div>
       </div>
 
@@ -1033,38 +1038,10 @@
       label: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7V4h16v3M9 20h6M12 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     };
 
-    function createGeometryIcon(geometryType, color) {
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('width', '14');
-      svg.setAttribute('height', '14');
-      svg.setAttribute('viewBox', '0 0 24 24');
-      if (geometryType === 'Point' || geometryType === 'MultiPoint') {
-        svg.setAttribute('fill', color);
-        svg.setAttribute('stroke', '#fff');
-        svg.setAttribute('stroke-width', '1.5');
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', '12');
-        circle.setAttribute('cy', '12');
-        circle.setAttribute('r', '5');
-        svg.appendChild(circle);
-      } else if (geometryType === 'LineString' || geometryType === 'MultiLineString') {
-        svg.setAttribute('fill', 'none');
-        svg.setAttribute('stroke', color);
-        svg.setAttribute('stroke-width', '3');
-        svg.setAttribute('stroke-linecap', 'round');
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M4 18L10 12L14 16L20 8');
-        svg.appendChild(path);
-      } else if (geometryType === 'Polygon' || geometryType === 'MultiPolygon') {
-        svg.setAttribute('fill', color);
-        svg.setAttribute('fill-opacity', '0.4');
-        svg.setAttribute('stroke', color);
-        svg.setAttribute('stroke-width', '1.5');
-        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        polygon.setAttribute('points', '12,3 20,9 17,20 7,20 4,9');
-        svg.appendChild(polygon);
-      }
-      return svg;
+    function createColorBox(color) {
+      const box = document.createElement('div');
+      box.style.cssText = 'width: 18px; height: 18px; background-color: ' + color + '; border-radius: 3px;';
+      return box;
     }
 
     function createRampPreview(rampName, invert) {
@@ -1072,7 +1049,7 @@
       const rampColors = invert ? [...ramp].reverse() : ramp;
       const colors = rampColors.map(rgb => `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`);
       const previewDiv = document.createElement('div');
-      previewDiv.style.cssText = 'width: 18px; height: 18px; border-radius: 3px; overflow: hidden; border: 1px solid rgba(0,0,0,0.15);';
+      previewDiv.style.cssText = 'width: 18px; height: 18px; border-radius: 3px; overflow: hidden;';
       previewDiv.style.background = `linear-gradient(to right, ${colors.join(', ')})`;
       return previewDiv;
     }
@@ -2163,7 +2140,7 @@ const prop = propSelect.value;
       swatch.style.background = 'transparent';
       const safeColor = isValidColor(layer.color) ? layer.color : '#888888';
       const geometryType = layer.geojson && layer.geojson.features && layer.geojson.features[0] && layer.geojson.features[0].geometry ? layer.geojson.features[0].geometry.type : null;
-      swatch.appendChild(createGeometryIcon(geometryType, safeColor));
+      swatch.appendChild(createColorBox(safeColor));
     }
 
     function updateSwatchRamp(layer) {
@@ -2174,55 +2151,6 @@ const prop = propSelect.value;
       swatch.innerHTML = '';
       swatch.style.background = 'transparent';
       swatch.appendChild(createRampPreview(layer.colorRamp, layer.colorRampInvert));
-    }
-
-    function startRename(label, layerId) {
-      const layer = activeLayers.find(l => l.id === layerId);
-      if (!layer) return;
-
-      const currentName = layer.displayName;
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'legend-text-input';
-      input.value = currentName;
-      let renamed = false;
-
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          if (!renamed) {
-            renamed = true;
-            finishRename(input, layerId);
-          }
-        } else if (e.key === 'Escape') {
-          input.value = currentName;
-          input.blur();
-        }
-      });
-
-      input.addEventListener('blur', () => {
-        if (!renamed) {
-          renamed = true;
-          finishRename(input, layerId);
-        }
-      });
-
-      label.replaceWith(input);
-      input.focus();
-      input.select();
-    }
-
-    function finishRename(input, layerId) {
-      if (!input.parentNode) return;
-      const newName = input.value.trim() || `Layer ${layerId}`;
-      const layer = activeLayers.find(l => l.id === layerId);
-      if (layer) layer.displayName = newName;
-
-      const span = document.createElement('span');
-      span.className = 'legend-text';
-      span.textContent = newName;
-      span.addEventListener('click', () => startRename(span, layerId));
-      input.replaceWith(span);
     }
 
     function addFileItem(name, count, id, color, geometryType) {
@@ -2248,13 +2176,22 @@ const prop = propSelect.value;
         swatch.style.background = 'transparent';
         swatch.appendChild(createRampPreview(layer.colorRamp, layer.colorRampInvert));
       } else {
-        swatch.appendChild(createGeometryIcon(geometryType, color));
+        swatch.appendChild(createColorBox(color));
       }
 
-      const label = document.createElement('span');
+      const label = document.createElement('div');
       label.className = 'legend-text';
-      label.textContent = name;
-      label.addEventListener('click', () => startRename(label, id));
+
+      const primary = document.createElement('span');
+      primary.className = 'legend-primary';
+      primary.textContent = name;
+
+      const secondary = document.createElement('span');
+      secondary.className = 'legend-secondary';
+      secondary.textContent = geometryType;
+
+      label.appendChild(primary);
+      label.appendChild(secondary);
 
       const countLabel = document.createElement('span');
       countLabel.className = 'legend-count';
@@ -2917,7 +2854,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
           });
         }
 
-        const subDisplayName = `${displayName} ${geometryType}`;
+        const subDisplayName = `${displayName}`;
         activeLayers.push({ id, sourceId, fillLayerId, lineLayerId, pointLayerId, labelLayerId, featureCount, color, geojson: typeGeojson, displayName: subDisplayName, labelsVisible: false, labelProperty: null, labelFontSize: 12, labelFontColor: color, labelHaloColor: '#ffffff', labelHaloWidth: 2, visible: true });
         addFileItem(subDisplayName, featureCount, id, color, geometryType);
         totalFeatures += featureCount;
