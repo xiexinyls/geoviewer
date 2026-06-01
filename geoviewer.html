@@ -1116,15 +1116,15 @@
           center: [-100, 40],
           zoom: 3.5,
         });
+        map.addControl(new mapboxgl.NavigationControl({
+          showCompass: true,
+          showZoom: false
+        }), 'top-right');
         map.addControl(new mapboxgl.GeolocateControl({
           positionOptions: { enableHighAccuracy: true },
           trackUserLocation: true,
           showUserHeading: true,
           showAccuracyCircle: true
-        }), 'top-right');
-        map.addControl(new mapboxgl.NavigationControl({
-          showCompass: true,
-          showZoom: false
         }), 'top-right');
 
         const TRAJECTORY_STORAGE_KEY = 'geoviewer_trajectory';
