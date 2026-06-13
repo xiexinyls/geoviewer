@@ -11,7 +11,7 @@
     body, html {
       margin: 0;
       height: 100%;
-      font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: system-ui, "Segoe UI", Helvetica, Arial, Roboto, sans-serif;
       background: #f8fafc;
     }
 
@@ -63,27 +63,27 @@
     }
 
     /* ===== SIDEBAR HEADER ===== */
-    .sidebar h1 {
-      margin: 0;
+    .sidebar h2 {
+      margin-top: 0px;
+      margin-bottom: 5px;
       font-size: 1rem;
       letter-spacing: 0.02em;
-      color: #111;
+      color: gray;
     }
 
     .sidebar .hint {
       font-size: small;
       font-family: monospace;
-      line-height: 1.5;
-      color: #555;
     }
 
     /* ===== SIDEBAR SECTIONS ===== */
     .sidebar .section {
       background: #fff;
       border-radius: 8px;
-      padding: 8px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      padding: 10px;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.1);
+      margin-top: 6px;
     }
 
     /* ===== BUTTONS & INPUTS ===== */
@@ -147,21 +147,6 @@
 
     #recordTrajectoryBtn.recording:hover {
       background: #b91c1c;
-    }
-
-    /* ===== STYLE PICKER ===== */
-    .style-picker {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .style-picker label {
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: #111;
     }
 
     /* ===== FILE LIST ===== */
@@ -900,62 +885,69 @@
 
   <div class="app" id="app">
     <aside class="sidebar">
-      <div>
-        <h1>GeoViewer</h1>
-        <p class="hint">Upload CSV or GeoJSON files and render the geometry on the Mapbox map. (CSV format: name,lon,lat. GeoJSON may contain Points, LineStrings, Polygons or FeatureCollections)</p>
+      <div class="section">
+        <h2 style="color:black">GeoViewer</h2>
+        <Span class="hint">Upload CSV or GeoJSON files and render the geometry on the Mapbox map. (CSV format: name,lon,lat. GeoJSON may contain Points, LineStrings, Polygons or FeatureCollections)</Span>
       </div>
 
-      <div class="section" style="margin-bottom: 8px;">
-        <label class="hint" style="display: block; margin-bottom: 6px;">Mapbox API Token</label>
+      <div class="section">
+        <h2>Map API Token and Style</h2>
+
         <div style="display: flex; gap: 6px;">
           <input id="tokenInput" type="text" placeholder="Paste your Mapbox API token" style="flex: 1; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; padding: 8px 12px; font-size: 0.78rem; font-family: monospace;" />
-          <button id="applyTokenBtn" type="button" class="file-button" style="font-size: 0.75rem; padding: 8px; width:100px">Apply</button>
+          <button id="applyTokenBtn" type="button" class="file-button" style="font-size: 0.75rem; padding: 8px; width:80px">Apply</button>
         </div>
+
         <div id="tokenWarning" style="color: #ef4444; font-size: 0.75rem; margin-top: 4px; display: none;"></div>
-      </div>
 
-      <div class="style-picker">
-        <select id="mapStyleSelect">
-          <option value="mapbox://styles/mapbox/light-v11">Light v11</option>
-          <option value="mapbox://styles/mapbox/dark-v11">Dark v11</option>
-          <option value="mapbox://styles/mapbox/satellite-streets-v12">Satellite Streets v12</option>
-          <option value="mapbox://styles/mapbox/streets-v12">Streets v12</option>
-          <option value="mapbox://styles/mapbox/outdoors-v12">Outdoors v12</option>
-          <option value="mapbox://styles/mapbox/light-v10">Light v10</option>
-          <option value="mapbox://styles/mapbox/dark-v10">Dark v10</option>
-          <option value="mapbox://styles/mapbox/satellite-streets-v11">Satellite Streets v11</option>
-          <option value="mapbox://styles/mapbox/satellite-v9">Satellite v9</option>
-        </select>
-      </div>
+        <div style="margin-top: 8px;">
+          <select id="mapStyleSelect">
+            <option value="mapbox://styles/mapbox/light-v11">Light v11</option>
+            <option value="mapbox://styles/mapbox/dark-v11">Dark v11</option>
+            <option value="mapbox://styles/mapbox/satellite-streets-v12">Satellite Streets v12</option>
+            <option value="mapbox://styles/mapbox/streets-v12">Streets v12</option>
+            <option value="mapbox://styles/mapbox/outdoors-v12">Outdoors v12</option>
+            <option value="mapbox://styles/mapbox/light-v10">Light v10</option>
+            <option value="mapbox://styles/mapbox/dark-v10">Dark v10</option>
+            <option value="mapbox://styles/mapbox/satellite-streets-v11">Satellite Streets v11</option>
+            <option value="mapbox://styles/mapbox/satellite-v9">Satellite v9</option>
+          </select>
+        </div>
 
-      <div class="section" style="margin-top: 8px;">
-        <div class="geo-row">
+        <div class="geo-row" style="margin-top: 8px;">
           <input type="checkbox" id="terrainToggle" style="width: 16px; height: 16px; cursor: pointer; accent-color: #3d5a80;" />
           <label for="terrainToggle" style="font-size: 0.78rem; color: #111; cursor: pointer; width: 80px;">3D Terrain</label>
           <input type="range" id="terrainSlider" disabled min="1" max="5" step="0.5" value="1.5" style="flex: 1; cursor: pointer;" />
           <span id="terrainValue" style="font-size: 0.75rem; color: #555; min-width: 30px; text-align: right;">1.5x</span>
         </div>
+
       </div>
 
-      <button id="fileButton" type="button" class="file-button file-button-top"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Add Layers...</button>
-      <input id="fileInput" type="file" accept=".csv,.geojson,.json" multiple style="display: none;" />
-      <button id="removeAllBtn" type="button" class="file-button" style="margin-top: 6px; font-size: 0.78rem;">Remove All Layers</button>
-      <div class="file-list" id="fileList"></div>
+      <div class="section">
+        <h2>Map Layers</h2>
+        <button id="fileButton" type="button" class="file-button file-button-top"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Add Layers...</button>
+        <input id="fileInput" type="file" accept=".csv,.geojson,.json" multiple style="display: none;" />
+        <button id="removeAllBtn" type="button" class="file-button" style="margin-top: 2px; font-size: 0.78rem;">Remove All</button>
+        <div class="file-list" id="fileList"></div>
+      </div>
 
-      <div class="section" style="margin-top: 8px;">
-        <label class="hint" style="display: block; margin-bottom: 6px;">Export</label>
+      <div class="section">
+        <h2>Export</h2>
         <select id="exportLayerSelect" style="margin-bottom: 6px;">
           <option value="all">All Layers</option>
         </select>
         <div style="display: flex; gap: 6px;">
           <button id="exportGeoJSONBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">GeoJSON</button>
           <button id="exportCSVBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">CSV</button>
+        </div>
+        <div style="display: flex; gap: 6px; margin-top: 6px;">
           <button id="snapshotBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Snapshot...</button>
+          <button id="exportHTMLBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">HTML...</button>
         </div>
       </div>
 
-      <div class="section" style="margin-top: 8px;">
-        <label class="hint" style="display: block; margin-bottom: 6px;">Trajectory</label>
+      <div class="section">
+        <h2>GPS Tracking</h2>
         <div style="display: flex; gap: 6px;">
           <button id="recordTrajectoryBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Record</button>
           <button id="clearTrajectoryBtn" type="button" class="file-button" style="flex: 1; font-size: 0.75rem; padding: 8px;">Clear</button>
@@ -3052,6 +3044,216 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       downloadFile(JSON.stringify(geojson, null, 2), 'geoviewer-export.geojson', 'application/geo+json');
     }
 
+    function exportToHTML() {
+      if (activeLayers.length === 0) {
+        alert('No layers to export.');
+        return;
+      }
+      const token = localStorage.getItem(STORED_TOKEN_KEY);
+      if (!token) {
+        alert('Please set a Mapbox access token first.');
+        return;
+      }
+      const selectedId = getSelectedLayerId();
+      const currentStyle = mapStyleSelect.value;
+      const layersConfig = [];
+
+      if (selectedId === 'all') {
+        activeLayers.forEach(layer => {
+          const data = layer.geojson;
+          const feats = data.type === 'FeatureCollection' ? data.features : [data];
+          layersConfig.push({
+            name: layer.displayName,
+            color: layer.color,
+            geojson: { type: 'FeatureCollection', features: feats },
+            featureCount: feats.length,
+            labelProperty: layer.labelProperty,
+            labelFontSize: layer.labelFontSize,
+            labelFontColor: layer.labelFontColor,
+            labelHaloColor: layer.labelHaloColor,
+            labelHaloWidth: layer.labelHaloWidth
+          });
+        });
+      } else {
+        const layer = activeLayers.find(l => l.id === selectedId);
+        if (!layer) return;
+        const data = layer.geojson;
+        const feats = data.type === 'FeatureCollection' ? data.features : [data];
+        layersConfig.push({
+          name: layer.displayName,
+          color: layer.color,
+          geojson: { type: 'FeatureCollection', features: feats },
+          featureCount: feats.length,
+          labelProperty: layer.labelProperty,
+          labelFontSize: layer.labelFontSize,
+          labelFontColor: layer.labelFontColor,
+          labelHaloColor: layer.labelHaloColor,
+          labelHaloWidth: layer.labelHaloWidth
+        });
+      }
+
+      const allFeatures = layersConfig.flatMap(l => l.geojson.type === 'FeatureCollection' ? l.geojson.features : [l.geojson]);
+      const bounds = new mapboxgl.LngLatBounds();
+      allFeatures.forEach(f => {
+        if (!f || !f.geometry) return;
+        const geom = f.geometry;
+        if (geom.type === 'Point') {
+          bounds.extend(geom.coordinates);
+        } else if (geom.type === 'MultiPoint' || geom.type === 'LineString') {
+          geom.coordinates.forEach(c => bounds.extend(c));
+        } else if (geom.type === 'MultiLineString' || geom.type === 'Polygon') {
+          geom.coordinates.flat().forEach(c => bounds.extend(c));
+        } else if (geom.type === 'MultiPolygon') {
+          geom.coordinates.flat(2).forEach(c => bounds.extend(c));
+        }
+      });
+
+      let initCenter = [0, 0], initZoom = 2;
+      if (bounds.isEmpty() === false) {
+        const c = bounds.getCenter();
+        initCenter = [c.lng, c.lat];
+        const sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
+        const latDiff = ne.lat - sw.lat, lngDiff = ne.lng - sw.lng;
+        initZoom = Math.min(12, Math.max(1, Math.log2(360 / Math.max(lngDiff, latDiff)) - 1));
+      }
+
+      const html = buildExportHTML(token, currentStyle, layersConfig, initCenter, initZoom);
+      downloadFile(html, 'geoviewer-export.html', 'text/html');
+    }
+
+    function buildExportHTML(token, style, layers, center, zoom) {
+      const esc = s => String(s).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
+      const layersJson = JSON.stringify(layers);
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GeoViewer Export</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  #map { position: absolute; inset: 0; }
+  .mapboxgl-popup-content { font-size: 0.85rem; max-width: 280px;       border-radius: 8px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); }
+  .mapboxgl-popup-content table { border-collapse: collapse; width: 100%; }
+  .mapboxgl-popup-content th { text-align: left; color: #555; font-weight: 600; padding: 2px 8px 2px 0; white-space: nowrap; }
+  .mapboxgl-popup-content td { padding: 2px 0; word-break: break-word; }
+  #legend { position: absolute; top: 10px; left: 10px; background: #fff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1; min-width: 200px; max-width: 300px; }
+  #legend-header { padding: 8px 12px; border-bottom: 1px solid #e5e5e5; font-weight: 600; font-size: 0.85rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; }
+  #legend-header:hover { background: #f7f7f7; }
+  #legend-header .arrow { font-size: 0.7rem; color: #888; transition: transform 0.15s; }
+  #legend.collapsed .arrow { transform: rotate(-90deg); }
+  #legend.collapsed #legend-list { display: none; }
+  #legend-list { padding: 4px 0; max-height: 50vh; overflow-y: auto; }
+  .legend-row { display: flex; align-items: center; padding: 6px 12px; gap: 8px; font-size: 0.8rem; cursor: pointer; }
+  .legend-row:hover { background: #f5f5f5; }
+  .legend-row input[type=checkbox] { cursor: pointer; margin: 0; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.1); }
+  .legend-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .legend-count { color: #888; font-size: 0.7rem; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="legend">
+  <div id="legend-header"><span>Layers</span><span class="arrow">▼</span></div>
+  <div id="legend-list"></div>
+</div>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"><\/script>
+<script>
+  mapboxgl.accessToken = "${esc(token)}";
+  const STYLE_URL = "${esc(style)}";
+  const LAYERS = ${layersJson};
+  const INIT_CENTER = ${JSON.stringify(center)};
+  const INIT_ZOOM = ${zoom};
+
+  const map = new mapboxgl.Map({ container: 'map', style: STYLE_URL, center: INIT_CENTER, zoom: INIT_ZOOM });
+  map.addControl(new mapboxgl.NavigationControl({ showCompass: true, showZoom: true }), 'top-right');
+
+  function geometryTypes(gj) {
+    const s = new Set();
+    const feats = gj.type === 'FeatureCollection' ? gj.features : [gj];
+    feats.forEach(f => { if (f && f.geometry) s.add(f.geometry.type); });
+    return s;
+  }
+  function featureCount(gj) {
+    return gj.type === 'FeatureCollection' ? gj.features.length : 1;
+  }
+
+  document.getElementById('legend-header').addEventListener('click', () => {
+    document.getElementById('legend').classList.toggle('collapsed');
+  });
+
+  const legendList = document.getElementById('legend-list');
+
+  map.on('load', () => {
+    LAYERS.forEach((layer, idx) => {
+      const id = 'layer-' + idx;
+      const subLayerIds = [];
+
+      map.addSource(id, { type: 'geojson', data: layer.geojson });
+      const types = geometryTypes(layer.geojson);
+      const hasPoly = [...types].some(t => ['Polygon', 'MultiPolygon'].includes(t));
+      const hasLine = [...types].some(t => ['LineString', 'MultiLineString'].includes(t));
+      const hasPoint = [...types].some(t => ['Point', 'MultiPoint'].includes(t));
+
+      if (hasPoly) {
+        const fillId = id + '-fill', lineId = id + '-line';
+        map.addLayer({ id: fillId, type: 'fill', source: id, paint: { 'fill-color': layer.color, 'fill-opacity': 0.2 } });
+        map.addLayer({ id: lineId, type: 'line', source: id, paint: { 'line-color': layer.color, 'line-width': 2 } });
+        subLayerIds.push(fillId, lineId);
+      }
+      if (hasLine && !hasPoly) {
+        const lineId = id + '-line';
+        map.addLayer({ id: lineId, type: 'line', source: id, paint: { 'line-color': layer.color, 'line-width': 2 } });
+        subLayerIds.push(lineId);
+      }
+      if (hasPoint) {
+        const pointId = id + '-point';
+        map.addLayer({ id: pointId, type: 'circle', source: id, paint: { 'circle-color': layer.color, 'circle-radius': 6, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 } });
+        subLayerIds.push(pointId);
+      }
+      if (layer.labelProperty) {
+        const labelId = id + '-label';
+        map.addLayer({ id: labelId, type: 'symbol', source: id,
+          layout: { 'text-field': ['get', layer.labelProperty], 'text-size': layer.labelFontSize, 'symbol-placement': 'point', 'text-anchor': 'bottom', 'text-offset': [0, 1.5] },
+          paint: { 'text-color': layer.labelFontColor, 'text-halo-color': layer.labelHaloColor, 'text-halo-width': layer.labelHaloWidth } });
+        subLayerIds.push(labelId);
+      }
+
+      subLayerIds.forEach(sid => {
+        map.on('click', sid, e => {
+          const f = e.features[0];
+          if (!f) return;
+          const props = f.properties || {};
+          const rows = Object.entries(props).map(([k, v]) => '<tr><th>' + k + '</th><td>' + v + '</td></tr>').join('');
+          new mapboxgl.Popup().setLngLat(e.lngLat).setHTML('<table>' + rows + '</table>').addTo(map);
+        });
+        map.on('mouseenter', sid, () => map.getCanvas().style.cursor = 'pointer');
+        map.on('mouseleave', sid, () => map.getCanvas().style.cursor = '');
+      });
+
+      const row = document.createElement('label');
+      row.className = 'legend-row';
+      row.innerHTML = '<input type="checkbox" checked data-idx="' + idx + '">' +
+        '<span class="legend-swatch" style="background-color:' + layer.color + '"></span>' +
+        '<span class="legend-name" title="' + layer.name.replace(/"/g, '"') + '">' + layer.name + '</span>' +
+        '<span class="legend-count">' + featureCount(layer.geojson) + '</span>';
+      legendList.appendChild(row);
+
+      row.querySelector('input').addEventListener('change', e => {
+        const visibility = e.target.checked ? 'visible' : 'none';
+        subLayerIds.forEach(sid => {
+          if (map.getLayer(sid)) map.setLayoutProperty(sid, 'visibility', visibility);
+        });
+      });
+    });
+  });
+<\/script>
+</body>
+</html>`;
+    }
+
     function geojsonToWKT(geometry) {
       switch (geometry.type) {
         case 'Point': return `POINT(${geometry.coordinates[0]} ${geometry.coordinates[1]})`;
@@ -3127,6 +3329,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 
     document.getElementById('exportGeoJSONBtn').addEventListener('click', exportToGeoJSON);
     document.getElementById('exportCSVBtn').addEventListener('click', exportToCSV);
+    document.getElementById('exportHTMLBtn').addEventListener('click', exportToHTML);
     document.getElementById('snapshotBtn').addEventListener('click', () => {
       map.once('render', () => {
         const canvas = map.getCanvas();
