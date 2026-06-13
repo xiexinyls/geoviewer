@@ -72,8 +72,9 @@
     }
 
     .sidebar .hint {
-      font-size: small;
+      font-size: 0.6rem;
       font-family: monospace;
+      line-height: 0.5;
     }
 
     /* ===== SIDEBAR SECTIONS ===== */
@@ -324,15 +325,109 @@
       right: 4px;
       background: rgba(255, 255, 255, 0.95);
       color: #111;
-      padding: 8px 12px;
+      padding: 6px;
       border-radius: 6px;
-      font-size: 0.82rem;
+      font-size: 0.6rem;
       max-width: 320px;
       z-index: 2;
       border: 1px solid rgba(0, 0, 0, 0.15);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       font-family: monospace;
-      font-size: 0.78rem;
+    }
+
+    .map-search {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      width: 360px;
+      max-width: calc(100% - 24px);
+    }
+    #mapSearchInput {
+      width: 100%;
+      padding: 8px 36px 8px 12px;
+      font-size: 0.85rem;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #111;
+      outline: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box;
+    }
+    #mapSearchInput:focus {
+      border-color: #3d5a80;
+    }
+    .map-search-input-wrap {
+      position: relative;
+    }
+    .map-search-clear {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #888;
+      font-size: 1.2rem;
+      line-height: 1;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      cursor: pointer;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .map-search-clear:hover {
+      background: rgba(0, 0, 0, 0.08);
+      color: #333;
+    }
+    .map-search-results {
+      position: absolute;
+      bottom: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-height: 240px;
+      overflow-y: auto;
+      display: none;
+    }
+    .map-search-results.active {
+      display: block;
+    }
+    .map-search-result {
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .map-search-result:last-child {
+      border-bottom: none;
+    }
+    .map-search-result:hover,
+    .map-search-result.selected {
+      background: #f5f5f5;
+    }
+    .map-search-result-main {
+      color: #111;
+      font-weight: 500;
+    }
+    .map-search-result-secondary {
+      color: #666;
+      font-size: 0.75rem;
+      margin-top: 2px;
+    }
+    .map-search-loading {
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: #888;
+      font-style: italic;
     }
 
     .mapboxgl-ctrl-top-right {
@@ -887,7 +982,7 @@
     <aside class="sidebar">
       <div class="section">
         <h2 style="color:black">GeoViewer</h2>
-        <Span class="hint">Upload CSV or GeoJSON files and render the geometry on the Mapbox map. (CSV format: name,lon,lat. GeoJSON may contain Points, LineStrings, Polygons or FeatureCollections)</Span>
+        <span class="hint">Upload CSV or GeoJSON files to render. Support GPS tracking.</span>
       </div>
 
       <div class="section">
@@ -959,7 +1054,14 @@
     <main class="map-container">
       <div id="map"></div>
       <div class="map-overlay" id="mapOverlay" style="top: 2px; right: 2px; left: auto; bottom: auto;">Upload files to show shapes.</div>
-      <div class="map-overlay" id="mapCoords" style="bottom: 32px; right: 2px; left: auto; top: auto; "></div>
+      <div class="map-overlay" id="mapCoords" style="top: 2px; left: 2px; right: auto; bottom: auto; "></div>
+      <div class="map-search" id="mapSearch">
+        <div class="map-search-input-wrap">
+          <input type="text" id="mapSearchInput" placeholder="Search address or place..." autocomplete="off" />
+          <button type="button" id="mapSearchClear" class="map-search-clear" title="Clear" style="display: none;">×</button>
+        </div>
+        <div class="map-search-results" id="mapSearchResults"></div>
+      </div>
     </main>
   </div>
 
@@ -1388,6 +1490,161 @@
     const mapOverlay = document.getElementById('mapOverlay');
     const resizer = document.getElementById('resizer');
     const sidebar = document.querySelector('.sidebar');
+
+    function initMapSearch() {
+      const input = document.getElementById('mapSearchInput');
+      const results = document.getElementById('mapSearchResults');
+      let debounceTimer = null;
+      let currentResults = [];
+      let selectedIndex = -1;
+      let activeMarker = null;
+      let markerTimeout = null;
+
+      function clearResults() {
+        results.innerHTML = '';
+        results.classList.remove('active');
+        currentResults = [];
+        selectedIndex = -1;
+      }
+
+      function showLoading() {
+        results.innerHTML = '<div class="map-search-loading">Searching...</div>';
+        results.classList.add('active');
+      }
+
+      function showError(msg) {
+        results.innerHTML = '<div class="map-search-loading">' + msg + '</div>';
+        results.classList.add('active');
+      }
+
+      async function searchPlaces(query) {
+        const token = localStorage.getItem(STORED_TOKEN_KEY);
+        if (!token) {
+          showError('Please set a Mapbox token first.');
+          return;
+        }
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&limit=5`;
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          if (!data.features || data.features.length === 0) {
+            showError('No results found.');
+            return;
+          }
+          currentResults = data.features;
+          selectedIndex = -1;
+          renderResults();
+        } catch (err) {
+          showError('Search failed: ' + err.message);
+        }
+      }
+
+      function renderResults() {
+        if (currentResults.length === 0) {
+          results.innerHTML = '';
+          results.classList.remove('active');
+          return;
+        }
+        results.innerHTML = currentResults.map((f, i) => {
+          const main = f.text;
+          const secondary = f.place_name || '';
+          return '<div class="map-search-result" data-idx="' + i + '">' +
+            '<div class="map-search-result-main">' + main + '</div>' +
+            '<div class="map-search-result-secondary">' + secondary + '</div>' +
+            '</div>';
+        }).join('');
+        results.classList.add('active');
+
+        results.querySelectorAll('.map-search-result').forEach(el => {
+          el.addEventListener('click', () => {
+            const idx = parseInt(el.dataset.idx, 10);
+            selectResult(idx);
+          });
+          el.addEventListener('mouseenter', () => {
+            selectedIndex = parseInt(el.dataset.idx, 10);
+            updateSelected();
+          });
+        });
+      }
+
+      function updateSelected() {
+        results.querySelectorAll('.map-search-result').forEach((el, i) => {
+          el.classList.toggle('selected', i === selectedIndex);
+        });
+      }
+
+      function selectResult(idx) {
+        const f = currentResults[idx];
+        if (!f) return;
+        const [lng, lat] = f.center;
+        map.flyTo({ center: [lng, lat], zoom: 12 });
+        if (activeMarker) activeMarker.remove();
+        activeMarker = new mapboxgl.Marker({ color: '#3d5a80' })
+          .setLngLat([lng, lat])
+          .addTo(map);
+        input.value = f.place_name || f.text;
+        clearResults();
+        input.blur();
+      }
+
+      input.addEventListener('input', e => {
+        const q = e.target.value.trim();
+        clearBtn.style.display = q ? 'flex' : 'none';
+        clearTimeout(debounceTimer);
+        if (q.length < 2) {
+          clearResults();
+          return;
+        }
+        showLoading();
+        debounceTimer = setTimeout(() => searchPlaces(q), 300);
+      });
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (currentResults.length > 0) {
+            selectedIndex = Math.min(selectedIndex + 1, currentResults.length - 1);
+            updateSelected();
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (currentResults.length > 0) {
+            selectedIndex = Math.max(selectedIndex - 1, 0);
+            updateSelected();
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (selectedIndex >= 0) {
+            selectResult(selectedIndex);
+          } else if (currentResults.length > 0) {
+            selectResult(0);
+          }
+        } else if (e.key === 'Escape') {
+          clearResults();
+          input.blur();
+        }
+      });
+
+      document.addEventListener('click', e => {
+        if (!document.getElementById('mapSearch').contains(e.target)) {
+          clearResults();
+        }
+      });
+
+      const clearBtn = document.getElementById('mapSearchClear');
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        clearBtn.style.display = 'none';
+        clearResults();
+        if (activeMarker) {
+          activeMarker.remove();
+          activeMarker = null;
+        }
+        input.focus();
+      });
+    }
+
+    initMapSearch();
 
     let currentLayerIndex = 0;
     const colorPalette = [
