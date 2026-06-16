@@ -3341,30 +3341,8 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
         });
       }
 
-      const allFeatures = layersConfig.flatMap(l => l.geojson.type === 'FeatureCollection' ? l.geojson.features : [l.geojson]);
-      const bounds = new mapboxgl.LngLatBounds();
-      allFeatures.forEach(f => {
-        if (!f || !f.geometry) return;
-        const geom = f.geometry;
-        if (geom.type === 'Point') {
-          bounds.extend(geom.coordinates);
-        } else if (geom.type === 'MultiPoint' || geom.type === 'LineString') {
-          geom.coordinates.forEach(c => bounds.extend(c));
-        } else if (geom.type === 'MultiLineString' || geom.type === 'Polygon') {
-          geom.coordinates.flat().forEach(c => bounds.extend(c));
-        } else if (geom.type === 'MultiPolygon') {
-          geom.coordinates.flat(2).forEach(c => bounds.extend(c));
-        }
-      });
-
-      let initCenter = [0, 0], initZoom = 2;
-      if (bounds.isEmpty() === false) {
-        const c = bounds.getCenter();
-        initCenter = [c.lng, c.lat];
-        const sw = bounds.getSouthWest(), ne = bounds.getNorthEast();
-        const latDiff = ne.lat - sw.lat, lngDiff = ne.lng - sw.lng;
-        initZoom = Math.min(12, Math.max(1, Math.log2(360 / Math.max(lngDiff, latDiff)) - 1));
-      }
+      const initCenter = [map.getCenter().lng, map.getCenter().lat];
+      const initZoom = map.getZoom();
 
       const html = buildExportHTML(token, currentStyle, layersConfig, initCenter, initZoom);
       downloadFile(html, 'geoviewer-export.html', 'text/html');
