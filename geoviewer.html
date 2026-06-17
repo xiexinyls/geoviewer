@@ -3429,10 +3429,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 <style>
   html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
   #map { position: absolute; inset: 0; }
-  .mapboxgl-popup-content { font-size: 0.85rem; min-width: 300px; max-width: 600px; border-radius: 8px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); }
-  .mapboxgl-popup-content table { border-collapse: collapse; width: 100%; }
-  .mapboxgl-popup-content th { text-align: left; color: #555; font-weight: 600; padding: 2px 8px 2px 0; white-space: nowrap; }
-  .mapboxgl-popup-content td { padding: 2px 0; word-break: break-word; font-family: monospace; font-size:15px; color:gray; font-weight:bold }
+  .mapboxgl-popup-content { font-size: 0.85rem; min-width: 200px; max-width: 600px; border-radius: 8px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); padding-top: 20px; }
   #legend { position: absolute; top: 10px; left: 10px; background: #fff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1; min-width: 200px; max-width: 300px; }
   #legend-header { padding: 8px 12px; border-bottom: 1px solid #e5e5e5; font-weight: 600; font-size: 0.85rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; }
   #legend-header:hover { background: #f7f7f7; }
@@ -3447,6 +3444,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
   .legend-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .legend-count { color: #888; font-size: 0.7rem; }
   .popup-value { color: gray; font-weight: bold; font-family: monospace; font-size: 1rem }
+  .popup-row { border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
 </style>
 </head>
 <body>
@@ -3526,7 +3524,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
           // const rows = Object.entries(props).map(([k, v]) => '<tr><th>' + k + '</th><td>' + v + '</td></tr>').join('');
           // new mapboxgl.Popup().setLngLat(e.lngLat).setHTML('<table>' + rows + '</table>').addTo(map);
 
-          const rows = Object.entries(props).map(([k, v]) => '<div><span>' + k + '</span> <span class="popup-value">' + v + '</span></div>').join('');
+          const rows = Object.entries(props).map(([k, v]) => '<div class="popup-row"><span>' + k + '</span> <span class="popup-value">' + v + '</span></div>').join('');
           new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(rows).addTo(map);
 
         });
