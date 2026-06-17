@@ -218,16 +218,10 @@
       color: #111;
       display: flex;
       flex-direction: column;
-      cursor: pointer;
       gap: 2px;
       min-width: 0;
       overflow: hidden;
       flex-shrink: 1;
-    }
-
-    .sidebar .file-item .legend-text:hover {
-      background: rgba(0, 0, 0, 0.06);
-      border-radius: 3px;
     }
 
     .sidebar .file-item .legend-primary {
@@ -235,6 +229,21 @@
       overflow: hidden;
       text-overflow: ellipsis;
       font-size: 0.75rem;
+    }
+    .sidebar .file-item .legend-primary:hover {
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 3px;
+    }
+    .sidebar .file-item .legend-primary-input {
+      font-size: 0.75rem;
+      padding: 2px 4px;
+      border: 1px solid #3d5a80;
+      border-radius: 3px;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+      background: #fff;
     }
 
     .sidebar .file-item .legend-secondary {
@@ -1201,6 +1210,7 @@
           style: 'mapbox://styles/mapbox/light-v11',
           center: [-100, 40],
           zoom: 3.5,
+          attributionControl: false
         });
         map.addControl(new mapboxgl.NavigationControl({
           showCompass: true,
@@ -2457,6 +2467,59 @@ const prop = propSelect.value;
       swatch.appendChild(createRampPreview(layer.colorRamp, layer.colorRampInvert));
     }
 
+    function startRename(layerId, primaryEl) {
+      const layer = activeLayers.find(l => l.id === layerId);
+      if (!layer) return;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = layer.displayName;
+      input.className = 'legend-primary-input';
+
+      primaryEl.textContent = '';
+      primaryEl.appendChild(input);
+      input.focus();
+      input.select();
+
+      let done = false;
+      function finish(save) {
+        if (done) return;
+        done = true;
+        if (save) {
+          const newName = input.value.trim();
+          if (newName && newName !== layer.displayName) {
+            layer.displayName = newName;
+            updateExportLayerSelect();
+          }
+        }
+        primaryEl.textContent = layer.displayName;
+      }
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          finish(true);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          finish(false);
+        }
+      });
+      input.addEventListener('blur', () => finish(true));
+    }
+
+    function updateExportLayerSelect() {
+      const select = document.getElementById('exportLayerSelect');
+      const currentValue = select.value;
+      select.innerHTML = '<option value="all">All Layers</option>';
+      activeLayers.forEach(layer => {
+        const opt = document.createElement('option');
+        opt.value = layer.id;
+        opt.textContent = layer.displayName;
+        if (layer.id === currentValue) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
     function addFileItem(name, count, id, color, geometryType) {
       const item = document.createElement('div');
       item.className = 'file-item';
@@ -2489,6 +2552,8 @@ const prop = propSelect.value;
       const primary = document.createElement('span');
       primary.className = 'legend-primary';
       primary.textContent = name;
+      primary.title = 'Click to rename';
+      primary.addEventListener('click', () => startRename(id, primary));
 
       const secondary = document.createElement('span');
       secondary.className = 'legend-secondary';
@@ -3361,7 +3426,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 <style>
   html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
   #map { position: absolute; inset: 0; }
-  .mapboxgl-popup-content { font-size: 0.85rem; min-width: 450px; max-width: 600px;       border-radius: 8px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); }
+  .mapboxgl-popup-content { font-size: 0.85rem; min-width: 300px; max-width: 600px; border-radius: 8px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); }
   .mapboxgl-popup-content table { border-collapse: collapse; width: 100%; }
   .mapboxgl-popup-content th { text-align: left; color: #555; font-weight: 600; padding: 2px 8px 2px 0; white-space: nowrap; }
   .mapboxgl-popup-content td { padding: 2px 0; word-break: break-word; font-family: monospace; font-size:15px; color:gray; font-weight:bold }
@@ -3378,12 +3443,13 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
   .legend-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.1); }
   .legend-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .legend-count { color: #888; font-size: 0.7rem; }
+  .popup-value { color: gray; font-weight: bold; font-family: monospace; font-size: 1rem }
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div id="legend">
-  <div id="legend-header"><span>Layers</span><span class="arrow">▼</span></div>
+  <div id="legend-header"><span>Legend</span><span class="arrow">▼</span></div>
   <div id="legend-list"></div>
 </div>
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"><\/script>
@@ -3394,7 +3460,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
   const INIT_CENTER = ${JSON.stringify(center)};
   const INIT_ZOOM = ${zoom};
 
-  const map = new mapboxgl.Map({ container: 'map', style: STYLE_URL, center: INIT_CENTER, zoom: INIT_ZOOM });
+  const map = new mapboxgl.Map({ container: 'map', style: STYLE_URL, center: INIT_CENTER, zoom: INIT_ZOOM, attributionControl: false });
   map.addControl(new mapboxgl.NavigationControl({ showCompass: true, showZoom: true }), 'top-right');
 
   function geometryTypes(gj) {
@@ -3414,7 +3480,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
   const legendList = document.getElementById('legend-list');
 
   map.on('load', () => {
-    LAYERS.forEach((layer, idx) => {
+    LAYERS.toReversed().forEach((layer, idx) => {
       const id = 'layer-' + idx;
       const subLayerIds = [];
 
@@ -3453,8 +3519,13 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
           const f = e.features[0];
           if (!f) return;
           const props = f.properties || {};
-          const rows = Object.entries(props).map(([k, v]) => '<tr><th>' + k + '</th><td>' + v + '</td></tr>').join('');
-          new mapboxgl.Popup().setLngLat(e.lngLat).setHTML('<table>' + rows + '</table>').addTo(map);
+          
+          // const rows = Object.entries(props).map(([k, v]) => '<tr><th>' + k + '</th><td>' + v + '</td></tr>').join('');
+          // new mapboxgl.Popup().setLngLat(e.lngLat).setHTML('<table>' + rows + '</table>').addTo(map);
+
+          const rows = Object.entries(props).map(([k, v]) => '<div><span>' + k + '</span> <span class="popup-value">' + v + '</span></div>').join('');
+          new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(rows).addTo(map);
+
         });
         map.on('mouseenter', sid, () => map.getCanvas().style.cursor = 'pointer');
         map.on('mouseleave', sid, () => map.getCanvas().style.cursor = '');
