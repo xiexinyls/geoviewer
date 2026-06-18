@@ -130,10 +130,6 @@
       background: rgba(0, 0, 0, 0.05);
     }
 
-    .file-button-top {
-      margin: 6px 0;
-    }
-
     #recordTrajectoryBtn.recording {
       background: #dc2626;
     }
@@ -1024,24 +1020,23 @@
 
       <div class="section">
         <h2>Map Layers</h2>
-        <button id="fileButton" type="button" class="btn file-button-top"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Add Layers...</button>
-        <input id="fileInput" type="file" accept=".csv,.geojson,.json" multiple style="display: none;" />
-        <button id="removeAllBtn" type="button" class="btn" style="margin-top: 2px;">Remove All</button>
+        <div style="display: flex; gap: 6px;">
+          <button id="fileButton" type="button" class="btn" style="flex: 1;"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Add Layers</button>
+          <input id="fileInput" type="file" accept=".csv,.geojson,.json" multiple style="display: none;" />
+          <button id="removeAllBtn" type="button" class="btn" style="flex: 1;">Remove All</button>
+        </div>
         <div class="file-list" id="fileList"></div>
       </div>
 
       <div class="section">
         <h2>Export</h2>
-        <select id="exportLayerSelect" style="margin-bottom: 6px;">
-          <option value="all">All Layers</option>
-        </select>
         <div style="display: flex; gap: 6px;">
           <button id="exportGeoJSONBtn" type="button" class="btn" style="flex: 1;">GeoJSON</button>
           <button id="exportCSVBtn" type="button" class="btn" style="flex: 1;">CSV</button>
         </div>
         <div style="display: flex; gap: 6px; margin-top: 6px;">
-          <button id="snapshotBtn" type="button" class="btn" style="flex: 1;">Snapshot...</button>
-          <button id="exportHTMLBtn" type="button" class="btn" style="flex: 1;">HTML...</button>
+          <button id="snapshotBtn" type="button" class="btn" style="flex: 1;">Snapshot</button>
+          <button id="exportHTMLBtn" type="button" class="btn" style="flex: 1;">HTML</button>
         </div>
       </div>
 
@@ -1050,7 +1045,7 @@
         <div style="display: flex; gap: 6px;">
           <button id="recordTrajectoryBtn" type="button" class="btn" style="flex: 1;">Record</button>
           <button id="clearTrajectoryBtn" type="button" class="btn" style="flex: 1;">Clear</button>
-          <button id="exportTrajectoryBtn" type="button" class="btn" style="flex: 1;">Export...</button>
+          <button id="exportTrajectoryBtn" type="button" class="btn" style="flex: 1;">Export</button>
         </div>
       </div>
     </aside>
@@ -2267,6 +2262,7 @@
       let dotInput = null;
       let lineWidthInput = null;
       let fillOpacityInput = null;
+      let dotStrokeInput = null;
 
       if (isPoint) {
         dotInput = document.createElement('input');
@@ -2286,6 +2282,24 @@
         dotRow.appendChild(dotInput);
         dotRow.appendChild(dotValue);
         geoSection.appendChild(dotRow);
+
+        dotStrokeInput = document.createElement('input');
+        dotStrokeInput.type = 'range';
+        dotStrokeInput.min = '0';
+        dotStrokeInput.max = '4';
+        dotStrokeInput.step = '0.5';
+        dotStrokeInput.value = layer.circleStrokeWidth ?? 2;
+        const dotStrokeValue = document.createElement('span');
+        dotStrokeValue.textContent = dotStrokeInput.value + 'px';
+        dotStrokeInput.addEventListener('input', () => { dotStrokeValue.textContent = dotStrokeInput.value + 'px'; });
+        const dotStrokeRow = document.createElement('div');
+        dotStrokeRow.className = 'geo-row';
+        const dotStrokeLabel = document.createElement('label');
+        dotStrokeLabel.textContent = 'Dot Stroke:';
+        dotStrokeRow.appendChild(dotStrokeLabel);
+        dotStrokeRow.appendChild(dotStrokeInput);
+        dotStrokeRow.appendChild(dotStrokeValue);
+        geoSection.appendChild(dotStrokeRow);
       }
 
       if (isLine || isPolygon) {
@@ -2360,6 +2374,7 @@
 
       function doApply() {
         if (dotInput) layer.dotRadius = parseInt(dotInput.value, 10);
+        if (dotStrokeInput) layer.circleStrokeWidth = parseFloat(dotStrokeInput.value);
         if (lineWidthInput) layer.lineWidth = parseFloat(lineWidthInput.value);
         if (fillOpacityInput) layer.fillOpacity = parseFloat(fillOpacityInput.value);
         applyGeometryStyles(layer);
@@ -2438,6 +2453,7 @@ const prop = propSelect.value;
 
       if (isPoint && map.getLayer(layer.pointLayerId)) {
         map.setPaintProperty(layer.pointLayerId, 'circle-radius', layer.dotRadius || 6);
+        map.setPaintProperty(layer.pointLayerId, 'circle-stroke-width', layer.circleStrokeWidth ?? 2);
       }
       if ((isLine || isPolygon) && map.getLayer(layer.lineLayerId)) {
         map.setPaintProperty(layer.lineLayerId, 'line-width', layer.lineWidth || 3);
@@ -2492,7 +2508,6 @@ const prop = propSelect.value;
           const newName = input.value.trim();
           if (newName && newName !== layer.displayName) {
             layer.displayName = newName;
-            updateExportLayerSelect();
           }
         }
         primaryEl.textContent = layer.displayName;
@@ -2508,19 +2523,6 @@ const prop = propSelect.value;
         }
       });
       input.addEventListener('blur', () => finish(true));
-    }
-
-    function updateExportLayerSelect() {
-      const select = document.getElementById('exportLayerSelect');
-      const currentValue = select.value;
-      select.innerHTML = '<option value="all">All Layers</option>';
-      activeLayers.forEach(layer => {
-        const opt = document.createElement('option');
-        opt.value = layer.id;
-        opt.textContent = layer.displayName;
-        if (layer.id === currentValue) opt.selected = true;
-        select.appendChild(opt);
-      });
     }
 
     function addFileItem(name, count, id, color, geometryType) {
@@ -2872,7 +2874,6 @@ function toggleLayerVisibility(layerId, checkbox) {
       const fileItem = fileList.querySelector(`[data-layer-id="${layerId}"]`);
       if (fileItem) fileList.removeChild(fileItem);
       updateOverlay();
-      updateExportLayerSelect();
     }
 
     function moveLayerUp(layerId) {
@@ -2940,24 +2941,29 @@ function toggleLayerVisibility(layerId, checkbox) {
       return Array.from(fileList.children).map(item => item.dataset.layerId);
     }
 
+    function getOrderedActiveLayers() {
+      const orderedIds = getFileListOrder();
+      const ordered = orderedIds
+        .map(id => activeLayers.find(l => l.id === id))
+        .filter(Boolean);
+      if (ordered.length < activeLayers.length) {
+        activeLayers.forEach(l => {
+          if (!ordered.includes(l)) ordered.push(l);
+        });
+      }
+      return ordered;
+    }
+
+    function getVisibleOrderedActiveLayers() {
+      return getOrderedActiveLayers().filter(l => l.visible !== false);
+    }
+
     function updateOverlay() {
       if (activeLayers.length === 0) {
         mapOverlay.textContent = 'No Files Imported.';
       } else {
         mapOverlay.textContent = `Showing ${totalFeatures} feature${totalFeatures === 1 ? '' : 's'} across ${activeLayers.length} layer${activeLayers.length === 1 ? '' : 's'}.`;
       }
-      updateExportLayerSelect();
-    }
-
-    function updateExportLayerSelect() {
-      const select = document.getElementById('exportLayerSelect');
-      select.innerHTML = '<option value="all">All Layers</option>';
-      activeLayers.forEach(layer => {
-        const opt = document.createElement('option');
-        opt.value = layer.id;
-        opt.textContent = layer.displayName;
-        select.appendChild(opt);
-      });
     }
 
 function showFeaturePopup(feature, lngLat, layerDisplayName) {
@@ -3227,7 +3233,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
         }
 
         const subDisplayName = `${displayName}`;
-        activeLayers.push({ id, sourceId, fillLayerId, lineLayerId, pointLayerId, labelLayerId, featureCount, color, geojson: typeGeojson, displayName: subDisplayName, labelsVisible: false, labelProperty: null, labelFontSize: 12, labelFontColor: color, labelHaloColor: '#ffffff', labelHaloWidth: 2, visible: true });
+        activeLayers.push({ id, sourceId, fillLayerId, lineLayerId, pointLayerId, labelLayerId, featureCount, color, geojson: typeGeojson, displayName: subDisplayName, labelsVisible: false, labelProperty: null, labelFontSize: 12, labelFontColor: color, labelHaloColor: '#ffffff', labelHaloWidth: 2, dotRadius: 6, lineWidth: 3, fillOpacity: 0.2, circleStrokeWidth: 2, visible: true });
         addFileItem(subDisplayName, featureCount, id, color, geometryType);
         totalFeatures += featureCount;
       });
@@ -3246,7 +3252,6 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       }
 
       updateOverlay();
-      updateExportLayerSelect();
     }
 
     function getAllCoordinates(geometry) {
@@ -3328,35 +3333,19 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       URL.revokeObjectURL(url);
     }
 
-    function getSelectedLayerId() {
-      return document.getElementById('exportLayerSelect').value;
-    }
-
     function exportToGeoJSON() {
       if (activeLayers.length === 0) {
         alert('No layers to export.');
         return;
       }
-      const selectedId = getSelectedLayerId();
-      let features;
-      if (selectedId === 'all') {
-        features = activeLayers.flatMap(layer => {
-          const data = layer.geojson;
-          const feats = data.type === 'FeatureCollection' ? data.features : [data];
-          return feats.map(f => ({
-            ...f,
-            properties: { ...f.properties, source: layer.displayName }
-          }));
-        });
-      } else {
-        const layer = activeLayers.find(l => l.id === selectedId);
-        if (!layer) return;
+      const features = getVisibleOrderedActiveLayers().flatMap(layer => {
         const data = layer.geojson;
-        features = (data.type === 'FeatureCollection' ? data.features : [data]).map(f => ({
+        const feats = data.type === 'FeatureCollection' ? data.features : [data];
+        return feats.map(f => ({
           ...f,
           properties: { ...f.properties, source: layer.displayName }
         }));
-      }
+      });
       const geojson = { type: 'FeatureCollection', features };
       downloadFile(JSON.stringify(geojson, null, 2), 'geoviewer-export.geojson', 'application/geo+json');
     }
@@ -3371,29 +3360,10 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
         alert('Please set a Mapbox access token first.');
         return;
       }
-      const selectedId = getSelectedLayerId();
       const currentStyle = mapStyleSelect.value;
       const layersConfig = [];
 
-      if (selectedId === 'all') {
-        activeLayers.forEach(layer => {
-          const data = layer.geojson;
-          const feats = data.type === 'FeatureCollection' ? data.features : [data];
-          layersConfig.push({
-            name: layer.displayName,
-            color: layer.color,
-            geojson: { type: 'FeatureCollection', features: feats },
-            featureCount: feats.length,
-            labelProperty: layer.labelProperty,
-            labelFontSize: layer.labelFontSize,
-            labelFontColor: layer.labelFontColor,
-            labelHaloColor: layer.labelHaloColor,
-            labelHaloWidth: layer.labelHaloWidth
-          });
-        });
-      } else {
-        const layer = activeLayers.find(l => l.id === selectedId);
-        if (!layer) return;
+      getVisibleOrderedActiveLayers().forEach(layer => {
         const data = layer.geojson;
         const feats = data.type === 'FeatureCollection' ? data.features : [data];
         layersConfig.push({
@@ -3401,13 +3371,17 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
           color: layer.color,
           geojson: { type: 'FeatureCollection', features: feats },
           featureCount: feats.length,
+          dotRadius: layer.dotRadius ?? 6,
+          lineWidth: layer.lineWidth ?? 3,
+          fillOpacity: layer.fillOpacity ?? 0.2,
+          circleStrokeWidth: layer.circleStrokeWidth ?? 2,
           labelProperty: layer.labelProperty,
           labelFontSize: layer.labelFontSize,
           labelFontColor: layer.labelFontColor,
           labelHaloColor: layer.labelHaloColor,
           labelHaloWidth: layer.labelHaloWidth
         });
-      }
+      });
 
       const initCenter = [map.getCenter().lng, map.getCenter().lat];
       const initZoom = map.getZoom();
@@ -3429,12 +3403,10 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 <style>
   html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
   #map { position: absolute; inset: 0; }
-  .mapboxgl-popup-content { font-size: 0.85rem; min-width: 200px; max-width: 600px; border-radius: 8px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); padding-top: 20px; }
+  .mapboxgl-popup-content { font-size: 0.85rem; min-width: 300px; max-width: 600px; border-radius: 8px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); padding-top: 20px; }
   #legend { position: absolute; top: 10px; left: 10px; background: #fff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1; min-width: 200px; max-width: 300px; }
   #legend-header { padding: 8px 12px; border-bottom: 1px solid #e5e5e5; font-weight: 600; font-size: 0.85rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; }
   #legend-header:hover { background: #f7f7f7; }
-  #legend-header .arrow { font-size: 0.7rem; color: #888; transition: transform 0.15s; }
-  #legend.collapsed .arrow { transform: rotate(-90deg); }
   #legend.collapsed #legend-list { display: none; }
   #legend-list { padding: 4px 0; max-height: 50vh; overflow-y: auto; }
   .legend-row { display: flex; align-items: center; padding: 6px 12px; gap: 8px; font-size: 0.8rem; cursor: pointer; }
@@ -3450,7 +3422,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 <body>
 <div id="map"></div>
 <div id="legend">
-  <div id="legend-header"><span>Legend</span><span class="arrow">▼</span></div>
+  <div id="legend-header">Legend</div>
   <div id="legend-list"></div>
 </div>
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"><\/script>
@@ -3491,20 +3463,25 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       const hasLine = [...types].some(t => ['LineString', 'MultiLineString'].includes(t));
       const hasPoint = [...types].some(t => ['Point', 'MultiPoint'].includes(t));
 
+      const dotRadius = layer.dotRadius ?? 6;
+      const lineWidth = layer.lineWidth ?? 3;
+      const fillOpacity = layer.fillOpacity ?? 0.2;
+      const circleStrokeWidth = layer.circleStrokeWidth ?? 2;
+
       if (hasPoly) {
         const fillId = id + '-fill', lineId = id + '-line';
-        map.addLayer({ id: fillId, type: 'fill', source: id, paint: { 'fill-color': layer.color, 'fill-opacity': 0.2 } });
-        map.addLayer({ id: lineId, type: 'line', source: id, paint: { 'line-color': layer.color, 'line-width': 2 } });
+        map.addLayer({ id: fillId, type: 'fill', source: id, paint: { 'fill-color': layer.color, 'fill-opacity': fillOpacity } });
+        map.addLayer({ id: lineId, type: 'line', source: id, paint: { 'line-color': layer.color, 'line-width': lineWidth } });
         subLayerIds.push(fillId, lineId);
       }
       if (hasLine && !hasPoly) {
         const lineId = id + '-line';
-        map.addLayer({ id: lineId, type: 'line', source: id, paint: { 'line-color': layer.color, 'line-width': 2 } });
+        map.addLayer({ id: lineId, type: 'line', source: id, paint: { 'line-color': layer.color, 'line-width': lineWidth } });
         subLayerIds.push(lineId);
       }
       if (hasPoint) {
         const pointId = id + '-point';
-        map.addLayer({ id: pointId, type: 'circle', source: id, paint: { 'circle-color': layer.color, 'circle-radius': 6, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2 } });
+        map.addLayer({ id: pointId, type: 'circle', source: id, paint: { 'circle-color': layer.color, 'circle-radius': dotRadius, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': circleStrokeWidth } });
         subLayerIds.push(pointId);
       }
       if (layer.labelProperty) {
@@ -3546,6 +3523,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
           if (map.getLayer(sid)) map.setLayoutProperty(sid, 'visibility', visibility);
         });
       });
+
     });
   });
 <\/script>
@@ -3570,14 +3548,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
         alert('No layers to export.');
         return;
       }
-      const selectedId = getSelectedLayerId();
-      let layers;
-      if (selectedId === 'all') {
-        layers = activeLayers;
-      } else {
-        const layer = activeLayers.find(l => l.id === selectedId);
-        layers = layer ? [layer] : [];
-      }
+      const layers = getVisibleOrderedActiveLayers();
 
       const allProps = new Set(['name', 'source']);
       const sampleFeatures = [];
