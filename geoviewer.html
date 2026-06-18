@@ -1030,6 +1030,7 @@
 
       <div class="section">
         <h2>Export</h2>
+        <input type="text" id="exportTitleInput" value="Map" placeholder="Map title" style="width: 100%; margin-bottom: 6px; padding: 6px 8px; font-size: 0.78rem; border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; box-sizing: border-box;" />
         <div style="display: flex; gap: 6px;">
           <button id="exportGeoJSONBtn" type="button" class="btn" style="flex: 1;">GeoJSON</button>
           <button id="exportCSVBtn" type="button" class="btn" style="flex: 1;">CSV</button>
@@ -3385,19 +3386,21 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 
       const initCenter = [map.getCenter().lng, map.getCenter().lat];
       const initZoom = map.getZoom();
+      const title = document.getElementById('exportTitleInput').value.trim();
 
-      const html = buildExportHTML(token, currentStyle, layersConfig, initCenter, initZoom);
+      const html = buildExportHTML(token, currentStyle, layersConfig, initCenter, initZoom, title);
       downloadFile(html, 'geoviewer-export.html', 'text/html');
     }
 
-    function buildExportHTML(token, style, layers, center, zoom) {
+    function buildExportHTML(token, style, layers, center, zoom, title) {
       const esc = s => String(s).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
       const layersJson = JSON.stringify(layers);
+      const mapTitle = title || 'Untitled Map';
       return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>GeoViewer Export</title>
+<title>${esc(mapTitle)}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
 <style>
