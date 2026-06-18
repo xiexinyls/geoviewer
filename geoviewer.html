@@ -77,7 +77,7 @@
     /* ===== SIDEBAR SECTIONS ===== */
     .sidebar .section {
       background: #fff;
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 6px;
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.08);
       border: 1px solid rgba(0, 0, 0, 0.1);
@@ -89,7 +89,7 @@
     .sidebar select {
       width: 100%;
       border: 1px solid rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 8px 12px;
       font-size: 0.84rem;
       background: #fff;
@@ -130,6 +130,21 @@
       background: rgba(0, 0, 0, 0.05);
     }
 
+    .text-input {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 0.78rem;
+      font-family: monospace;
+      background: #fff;
+      color: #111;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .text-input:focus {
+      border-color: #3d5a80;
+    }
+
     #recordTrajectoryBtn.recording {
       background: #dc2626;
     }
@@ -145,7 +160,7 @@
       margin-top: 6px;
       background: #fff;
       border: 1px solid rgba(0, 0, 0, 0.12);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 4px;
     }
 
@@ -166,7 +181,7 @@
       padding: 6px 6px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       transition: background 0.2s ease;
-      border-radius: 8px;
+      border-radius: 6px;
     }
 
     .sidebar .file-item:hover {
@@ -263,7 +278,7 @@
       color: #555;
       background: rgba(0, 0, 0, 0.05);
       border: 1px solid rgba(0, 0, 0, 0.12);
-      border-radius: 8px;
+      border-radius: 6px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -307,7 +322,7 @@
       color: #555;
       background: rgba(0, 0, 0, 0.05);
       border: 1px solid rgba(0, 0, 0, 0.12);
-      border-radius: 8px;
+      border-radius: 6px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -460,7 +475,7 @@
     .color-picker-content {
       position: relative;
       background: #ffffff;
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 16px;
       max-width: 340px;
       width: 90%;
@@ -568,7 +583,7 @@
       flex: 1;
       padding: 6px 8px;
       border: 1px solid rgba(0,0,0,0.2);
-      border-radius: 8px;
+      border-radius: 6px;
       font-size: 0.82rem;
     }
 
@@ -583,7 +598,7 @@
       gap: 8px;
       padding: 6px 10px;
       border: 1px solid rgba(0,0,0,0.2);
-      border-radius: 8px;
+      border-radius: 6px;
       background: #fff;
       cursor: pointer;
       font-size: 0.82rem;
@@ -616,7 +631,7 @@
       right: 0;
       background: #fff;
       border: 1px solid rgba(0,0,0,0.15);
-      border-radius: 8px;
+      border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.12);
       z-index: 100;
       max-height: 240px;
@@ -682,7 +697,7 @@
       flex: 1;
       padding: 6px 8px;
       border: 1px solid rgba(0,0,0,0.2);
-      border-radius: 8px;
+      border-radius: 6px;
       font-size: 0.82rem;
       width: 80px;
     }
@@ -698,7 +713,7 @@
       background: #3d5a80;
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       font-size: 0.85rem;
       cursor: pointer;
     }
@@ -762,7 +777,7 @@
     .feature-popup-content {
       background: #ffffff;
       border: 1px solid rgba(0, 0, 0, 0.15);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 12px;
       padding-top: 18px;
       min-width: 300px;
@@ -989,7 +1004,7 @@
         <h2>Map API Token and Style</h2>
 
         <div style="display: flex; gap: 6px;">
-          <input id="tokenInput" type="text" placeholder="Paste your Mapbox API token" style="flex: 1; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; padding: 8px 12px; font-size: 0.78rem; font-family: monospace;" />
+          <input id="tokenInput" type="text" class="text-input" placeholder="Paste your Mapbox API token" style="flex: 1;" />
           <button id="applyTokenBtn" type="button" class="btn" style="width: 80px;">Apply</button>
         </div>
 
@@ -1030,7 +1045,7 @@
 
       <div class="section">
         <h2>Export</h2>
-        <input type="text" id="exportTitleInput" value="Map" placeholder="Map title" style="width: 100%; margin-bottom: 6px; padding: 6px 8px; font-size: 0.78rem; border: 1px solid rgba(0,0,0,0.15); border-radius: 6px; box-sizing: border-box;" />
+        <input type="text" id="exportTitleInput" class="text-input" value="Map" placeholder="Map Title" style="width: 100%; margin-bottom: 6px;" />
         <div style="display: flex; gap: 6px;">
           <button id="exportGeoJSONBtn" type="button" class="btn" style="flex: 1;">GeoJSON</button>
           <button id="exportCSVBtn" type="button" class="btn" style="flex: 1;">CSV</button>
@@ -2667,7 +2682,7 @@ function toggleLayerVisibility(layerId, checkbox) {
 
       const modal = document.createElement('div');
       modal.className = 'label-config-modal';
-      modal.style.cssText = 'background: #fff; border-radius: 8px; padding: 20px; min-width: 320px; max-width: 400px; max-height: 90vh; box-shadow: 0 4px 20px rgba(0,0,0,0.2); font-family: sans-serif; overflow-y: auto;';
+      modal.style.cssText = 'background: #fff; border-radius: 6px; padding: 20px; min-width: 320px; max-width: 400px; max-height: 90vh; box-shadow: 0 4px 20px rgba(0,0,0,0.2); font-family: sans-serif; overflow-y: auto;';
 
       const header = document.createElement('div');
       header.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;';
@@ -2693,7 +2708,7 @@ function toggleLayerVisibility(layerId, checkbox) {
       propLabel.textContent = 'Property:';
       propLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const propSelect = document.createElement('select');
-      propSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.85rem; min-height: 30px;';
+      propSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; font-size: 0.85rem; min-height: 30px;';
       const properties = getLayerProperties(layer);
       const noneOpt = document.createElement('option');
       noneOpt.value = '';
@@ -2716,7 +2731,7 @@ function toggleLayerVisibility(layerId, checkbox) {
       sizeLabel.textContent = 'Text Size:';
       sizeLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const sizeSelect = document.createElement('select');
-      sizeSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.85rem;';
+      sizeSelect.style.cssText = 'flex: 1; padding: 6px 8px; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; font-size: 0.85rem;';
       const sizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 42, 48, 56, 64];
       sizes.forEach(s => {
         const opt = document.createElement('option');
@@ -2736,9 +2751,9 @@ function toggleLayerVisibility(layerId, checkbox) {
       colorLabel.style.cssText = 'width: 80px; font-size: 0.85rem; color: #555;';
       const colorInput = document.createElement('input');
       colorInput.type = 'color';
-      colorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer;';
+      colorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; cursor: pointer;';
       colorInput.value = isValidColor(layer.labelFontColor) ? layer.labelFontColor : '#111111';
-      colorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer;';
+      colorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; cursor: pointer;';
       colorRow.appendChild(colorLabel);
       colorRow.appendChild(colorInput);
       form.appendChild(colorRow);
@@ -2751,7 +2766,7 @@ function toggleLayerVisibility(layerId, checkbox) {
       const haloColorInput = document.createElement('input');
       haloColorInput.type = 'color';
       haloColorInput.value = isValidColor(layer.labelHaloColor) ? layer.labelHaloColor : '#ffffff';
-      haloColorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; cursor: pointer;';
+      haloColorInput.style.cssText = 'width: 50px; height: 28px; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; cursor: pointer;';
       haloColorRow.appendChild(haloColorLabel);
       haloColorRow.appendChild(haloColorInput);
       form.appendChild(haloColorRow);
@@ -2785,11 +2800,11 @@ function toggleLayerVisibility(layerId, checkbox) {
       btnRow.style.cssText = 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;';
       const cancelBtn = document.createElement('button');
       cancelBtn.textContent = 'Cancel';
-      cancelBtn.style.cssText = 'padding: 8px 16px; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; background: #f5f5f5; cursor: pointer; font-size: 0.85rem;';
+      cancelBtn.style.cssText = 'padding: 8px 16px; border: 1px solid rgba(0,0,0,0.2); border-radius: 6px; background: #f5f5f5; cursor: pointer; font-size: 0.85rem;';
       cancelBtn.addEventListener('click', () => overlay.remove());
       const applyBtn = document.createElement('button');
       applyBtn.textContent = 'Apply';
-      applyBtn.style.cssText = 'padding: 8px 16px; border: none; border-radius: 8px; background: #3d5a80; color: #fff; cursor: pointer; font-size: 0.85rem;';
+      applyBtn.style.cssText = 'padding: 8px 16px; border: none; border-radius: 6px; background: #3d5a80; color: #fff; cursor: pointer; font-size: 0.85rem;';
       applyBtn.addEventListener('click', () => {
         const selectedProp = propSelect.value;
         layer.labelProperty = selectedProp ? selectedProp : null;
@@ -3406,7 +3421,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
 <style>
   html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
   #map { position: absolute; inset: 0; }
-  .mapboxgl-popup-content { font-size: 0.85rem; min-width: 300px; max-width: 600px; border-radius: 8px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); padding-top: 20px; }
+  .mapboxgl-popup-content { font-size: 0.85rem; min-width: 300px; max-width: 600px; border-radius: 6px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); padding-top: 20px; }
   #legend { position: absolute; top: 10px; left: 10px; background: #fff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1; min-width: 200px; max-width: 300px; }
   #legend-header { padding: 8px 12px; border-bottom: 1px solid #e5e5e5; font-weight: 600; font-size: 0.85rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; }
   #legend-header:hover { background: #f7f7f7; }
