@@ -1035,11 +1035,13 @@
 
       <div class="section">
         <h2>Map Layers</h2>
-        <div style="display: flex; gap: 6px;">
-          <button id="fileButton" type="button" class="btn" style="flex: 1;"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Add Layers</button>
+<div style="display: flex; gap: 6px;">
+          <button id="fileButton" type="button" class="btn" style="flex: 1;"><svg width="14" height="14" viewBox="0 -0.5 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 8.047V12.047H2V8.047H0V15H15.969V8.047H14ZM7.997 0L5 3.963H7.016V8.969H8.953V3.984H10.953L7.997 0Z" fill="currentColor"/></svg> Add Layers...</button>
           <input id="fileInput" type="file" accept=".csv,.geojson,.json" multiple style="display: none;" />
           <button id="removeAllBtn" type="button" class="btn" style="flex: 1;">Remove All</button>
         </div>
+        <button id="loadHtmlBtn" type="button" class="btn" style="margin-top: 6px; width: 100%;">Import HTML View</button>
+        <input id="loadHtmlInput" type="file" accept=".html,.htm" style="display: none;" />
         <div class="file-list" id="fileList"></div>
       </div>
 
@@ -1049,10 +1051,10 @@
         <div style="display: flex; gap: 6px;">
           <button id="exportGeoJSONBtn" type="button" class="btn" style="flex: 1;">GeoJSON</button>
           <button id="exportCSVBtn" type="button" class="btn" style="flex: 1;">CSV</button>
+          <button id="snapshotBtn" type="button" class="btn" style="flex: 1;">Snapshot</button>
         </div>
         <div style="display: flex; gap: 6px; margin-top: 6px;">
-          <button id="snapshotBtn" type="button" class="btn" style="flex: 1;">Snapshot</button>
-          <button id="exportHTMLBtn" type="button" class="btn" style="flex: 1;">HTML</button>
+          <button id="exportHTMLBtn" type="button" class="btn" style="flex: 1;">Export HTML View</button>
         </div>
       </div>
 
@@ -3392,6 +3394,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
           fillOpacity: layer.fillOpacity ?? 0.2,
           circleStrokeWidth: layer.circleStrokeWidth ?? 2,
           labelProperty: layer.labelProperty,
+          labelsVisible: layer.labelsVisible,
           labelFontSize: layer.labelFontSize,
           labelFontColor: layer.labelFontColor,
           labelHaloColor: layer.labelHaloColor,
@@ -3422,6 +3425,8 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
   html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
   #map { position: absolute; inset: 0; }
   .mapboxgl-popup-content { font-size: 0.85rem; min-width: 300px; max-width: 600px; border-radius: 6px; box-shadow: 0 8px 12px rgba(0, 0, 0, 0.158); padding-top: 20px; }
+  .mapboxgl-popup-content h4 { margin: 0 0 12px 0;
+  color: gray;font-family: monospace; }
   #legend { position: absolute; top: 10px; left: 10px; background: #fff; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1; min-width: 200px; max-width: 300px; }
   #legend-header { padding: 8px 12px; border-bottom: 1px solid #e5e5e5; font-weight: 600; font-size: 0.85rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; }
   #legend-header:hover { background: #f7f7f7; }
@@ -3509,6 +3514,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
           paint: { 'text-color': layer.labelFontColor, 'text-halo-color': layer.labelHaloColor, 'text-halo-width': layer.labelHaloWidth } });
         subLayerIds.push(labelId);
       }
+      // console.log( subLayerIds );
 
       subLayerIds.forEach(sid => {
         map.on('click', sid, e => {
@@ -3519,7 +3525,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
           // const rows = Object.entries(props).map(([k, v]) => '<tr><th>' + k + '</th><td>' + v + '</td></tr>').join('');
           // new mapboxgl.Popup().setLngLat(e.lngLat).setHTML('<table>' + rows + '</table>').addTo(map);
 
-          const rows = Object.entries(props).map(([k, v]) => '<div class="popup-row"><span>' + k + '</span> <span class="popup-value">' + v + '</span></div>').join('');
+          const rows = '<h4>'+layer.name+'</h4>'+Object.entries(props).map(([k, v]) => '<div class="popup-row"><span>' + k + '</span> <span class="popup-value">' + v + '</span></div>').join('');
           new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(rows).addTo(map);
 
         });
@@ -3533,7 +3539,7 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
         '<span class="legend-swatch" style="background-color:' + layer.color + '"></span>' +
         '<span class="legend-name" title="' + layer.name.replace(/"/g, '"') + '">' + layer.name + '</span>' +
         '<span class="legend-count">' + featureCount(layer.geojson) + '</span>';
-      legendList.appendChild(row);
+      legendList.prepend(row);
 
       row.querySelector('input').addEventListener('change', e => {
         const visibility = e.target.checked ? 'visible' : 'none';
@@ -3641,6 +3647,111 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
       layersToRemove.forEach(layer => removeLayer(layer.id));
     });
 
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        if (file.size > 50 * 1024 * 1024) {
+          reject(new Error('File too large (max 50MB).'));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Failed to read file.'));
+        reader.readAsText(file);
+      });
+    }
+
+    function parseExportedHTML(html) {
+      const layersMatch = html.match(/const\s+LAYERS\s*=\s*(\[[\s\S]*?\]);/);
+      const styleMatch = html.match(/const\s+STYLE_URL\s*=\s*"([^"]*)"/);
+      const centerMatch = html.match(/const\s+INIT_CENTER\s*=\s*(\[[^\]]*\])/);
+      const zoomMatch = html.match(/const\s+INIT_ZOOM\s*=\s*([\d.]+)/);
+      const titleMatch = html.match(/<title>([^<]*)<\/title>/);
+
+      if (!layersMatch || !styleMatch || !centerMatch || !zoomMatch) {
+        throw new Error('Not a valid GeoViewer export. Missing required data (LAYERS, STYLE_URL, INIT_CENTER, or INIT_ZOOM).');
+      }
+
+      return {
+        layers: JSON.parse(layersMatch[1]),
+        style: styleMatch[1],
+        center: JSON.parse(centerMatch[1]),
+        zoom: parseFloat(zoomMatch[1]),
+        title: titleMatch ? titleMatch[1] : null
+      };
+    }
+
+    function addImportedLayer(importedLayer) {
+      currentLayerIndex++;
+      const id = 'layer-' + currentLayerIndex;
+      const sourceId = id + '-source';
+      const fillLayerId = id + '-fill';
+      const lineLayerId = id + '-line';
+      const pointLayerId = id + '-point';
+      const labelLayerId = id + '-label';
+
+      const types = new Set();
+      const feats = importedLayer.geojson.type === 'FeatureCollection' ? importedLayer.geojson.features : [importedLayer.geojson];
+      feats.forEach(f => { if (f && f.geometry) types.add(f.geometry.type); });
+
+      const subDisplayName = importedLayer.name || 'Imported Layer';
+      const geometryType = [...types][0] || 'Unknown';
+
+      const layer = {
+        id,
+        sourceId,
+        fillLayerId,
+        lineLayerId,
+        pointLayerId,
+        labelLayerId,
+        featureCount: importedLayer.featureCount || feats.length,
+        color: importedLayer.color,
+        geojson: importedLayer.geojson,
+        displayName: subDisplayName,
+        labelsVisible: importedLayer.labelsVisible ?? false,
+        labelProperty: importedLayer.labelProperty || null,
+        labelFontSize: importedLayer.labelFontSize || 12,
+        labelFontColor: importedLayer.labelFontColor || importedLayer.color,
+        labelHaloColor: importedLayer.labelHaloColor || '#ffffff',
+        labelHaloWidth: importedLayer.labelHaloWidth || 2,
+        dotRadius: importedLayer.dotRadius ?? 6,
+        lineWidth: importedLayer.lineWidth ?? 3,
+        fillOpacity: importedLayer.fillOpacity ?? 0.2,
+        circleStrokeWidth: importedLayer.circleStrokeWidth ?? 2,
+        visible: true
+      };
+
+      activeLayers.push(layer);
+      addLayerFromStored(layer);
+      addFileItem(layer.displayName, layer.featureCount, id, layer.color, geometryType);
+      totalFeatures += layer.featureCount;
+    }
+
+    function applyImportedData(data) {
+      const layersToRemove = [...activeLayers];
+      layersToRemove.forEach(layer => removeLayer(layer.id));
+
+      if (mapStyleSelect && data.style && data.style !== mapStyleSelect.value) {
+        const styleExists = Array.from(mapStyleSelect.options).some(opt => opt.value === data.style);
+        if (styleExists) {
+          mapStyleSelect.value = data.style;
+          mapStyleSelect.dispatchEvent(new Event('change'));
+        }
+      }
+
+      data.layers.reverse().forEach(importedLayer => addImportedLayer(importedLayer));
+
+      if (map && data.center && typeof data.zoom === 'number') {
+        map.flyTo({ center: data.center, zoom: data.zoom });
+      }
+
+      if (data.title) {
+        const titleInput = document.getElementById('exportTitleInput');
+        if (titleInput) titleInput.value = data.title;
+      }
+
+      updateOverlay();
+    }
+
     fileInput.addEventListener('change', async event => {
       const files = Array.from(event.target.files || []);
       if (files.length === 0) return;
@@ -3658,6 +3769,24 @@ function showFeaturePopup(feature, lngLat, layerDisplayName) {
         }
       }
       fileInput.value = '';
+    });
+
+    document.getElementById('loadHtmlBtn').addEventListener('click', () => {
+      document.getElementById('loadHtmlInput').click();
+    });
+
+    document.getElementById('loadHtmlInput').addEventListener('change', async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const text = await readFileAsText(file);
+        const data = parseExportedHTML(text);
+        applyImportedData(data);
+      } catch (err) {
+        alert('Failed to load HTML: ' + err.message);
+        console.error(err);
+      }
+      event.target.value = '';
     });
 
     if (map) {
